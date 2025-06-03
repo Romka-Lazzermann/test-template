@@ -1,14 +1,22 @@
 import { Router } from 'express';
 import { BlogService } from '../services/BlogService';
 import { Request, Response } from 'express';
+import { upload } from '../middlewares/uploadMiddleware';
 const router = Router();
 
 export const createBlogRoutes = (dataSource) => {
   const blogService = new BlogService(dataSource);
   
-  router.post('/', async (req : Request, res : Response) => {
+  router.post('/', upload.single('img'), async (req , res ) => {
     try {
-      const blog = await blogService.create(req.body);
+      const { title, description, category_id, status } = req.body;
+      const blog = await blogService.create({
+        title,
+        description,
+        category_id,
+        status,
+        img: req.file ? req.file.path : null
+      });
       res.status(201).json(blog);
     } catch (err) {
       console.log("Error message : ", err.message)

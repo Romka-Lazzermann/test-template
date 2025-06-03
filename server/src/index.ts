@@ -8,12 +8,16 @@ import dotenv from 'dotenv'
 
 dotenv.config();
 const app = express()
-app.use(bodyParser.json())
+
 const PORT = process.env.PORT || 3000;
 AppDataSource.initialize().then(() => {
   console.log('Data Source has been initialized!')
+  app.use('/assets', express.static('assets'))
+  
   app.use('/blogs', createBlogRoutes(AppDataSource))
   app.use('/category', createCategoryRoutes(AppDataSource))
+
+  app.use(bodyParser.json())
 
   app.listen(PORT, () => {
     console.log('Server is running on port ', PORT)
