@@ -2,14 +2,18 @@ import 'reflect-metadata'
 import express from 'express'
 import { AppDataSource } from '../ormconfig'
 import {createBlogRoutes} from './routes/blog'
+import { createCategoryRoutes } from './routes/category'
 import bodyParser from 'body-parser'
+import dotenv from 'dotenv'
 
+dotenv.config();
 const app = express()
 app.use(bodyParser.json())
 const PORT = process.env.PORT || 3000;
 AppDataSource.initialize().then(() => {
   console.log('Data Source has been initialized!')
   app.use('/blogs', createBlogRoutes(AppDataSource))
+  app.use('/category', createCategoryRoutes(AppDataSource))
 
   app.listen(PORT, () => {
     console.log('Server is running on port ', PORT)
