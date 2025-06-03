@@ -1,12 +1,10 @@
 import { Router } from 'express';
-import { DataSource } from 'typeorm';
 import { BlogService } from '../services/BlogService';
 import { Request, Response } from 'express';
 const router = Router();
 
 export const createBlogRoutes = (dataSource) => {
   const blogService = new BlogService(dataSource);
-
   
   router.post('/', async (req : Request, res : Response) => {
     try {
