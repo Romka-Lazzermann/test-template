@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Timestamp } from "typeorm";
 import { Category } from "./CategoryModel";
 
 @Entity()
@@ -16,7 +16,7 @@ export class Blog {
     @Column({type: "int"})
     status: number
 
-    @Column({type: "timestamp"})
+    @Column({type: "int", width: 11})
     time_create: number
 
     @Column({nullable: true, type: "text"})
