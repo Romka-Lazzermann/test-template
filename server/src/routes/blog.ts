@@ -20,7 +20,7 @@ export const createBlogRoutes = (dataSource) => {
       res.status(201).json(blog);
     } catch (err) {
       console.log("Error message : ", err.message)
-      res.status(400).json({ error: err.message });
+      res.status(400).json({ success: 0, error: "Error while creating a blog" });
     }
   });
 
