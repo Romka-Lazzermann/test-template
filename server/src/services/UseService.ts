@@ -1,14 +1,16 @@
 import { Repository, DataSource } from "typeorm";
 import { Users } from '../entity/UserModel'
 import { UserRole, LoginCredentials } from '../interfaces'
+import { injectable, inject } from 'tsyringe';
+
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
-
+@injectable()
 export class UserService {
     protected UserRepo: Repository<Users>;
 
-    constructor(private datasource: DataSource) {
+    constructor(@inject('UserDbDataSource') private datasource: DataSource) {
         this.UserRepo = datasource.getRepository(Users);
     }
 

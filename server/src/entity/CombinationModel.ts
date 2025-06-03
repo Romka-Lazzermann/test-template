@@ -5,13 +5,13 @@ import { Style } from "./StyleModel";
 @Entity()
 export class Combination {
     @PrimaryGeneratedColumn()
-    id: number
+    id!: number
 
     @ManyToOne(() => Channel, channel => channel.id, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'channel_id' })
-    channel: Channel
+    channel!: Channel
 
     @ManyToOne(() => Style, style => style.id, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'style_id' })
-    style: Style
+    style!: Style
 }

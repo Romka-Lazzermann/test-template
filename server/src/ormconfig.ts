@@ -1,13 +1,12 @@
 
 import {DataSource} from 'typeorm'
-import 'dotenv/config';
-import path from 'path';
-import {Blog} from './src/entity/BlogModel'
-import {Category} from './src/entity/CategoryModel'
-import {Channel} from './src/entity/ChannelModel'
-import {Style} from './src/entity/StyleModel'
-import {Combination} from './src/entity/CombinationModel'
-
+import dotenv from 'dotenv'
+import {Blog} from './entity/BlogModel'
+import {Category} from './entity/CategoryModel'
+import {Channel} from './entity/ChannelModel'
+import {Style} from './entity/StyleModel'
+import {Combination} from './entity/CombinationModel'
+dotenv.config();
 
 export const AppDataSource = new DataSource({
     migrationsRun: true,

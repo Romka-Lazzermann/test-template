@@ -3,18 +3,18 @@ import { UserRole } from '../interfaces'
 @Entity()
 export class Users {
     @PrimaryGeneratedColumn()
-    id: number
+    id!: number
 
     @Column({
         type: "enum",
         enum: UserRole,
         default: UserRole.ADMIN
     })
-    role: UserRole
+    role!: UserRole
 
     @Column({type: "varchar", length: 100})
-    login: string
+    login!: string
 
     @Column({type: "varchar", length: 100})
-    hash: string
+    hash!: string
 }

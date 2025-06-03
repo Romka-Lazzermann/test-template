@@ -1,8 +1,8 @@
 
-import 'dotenv/config';
+import dotenv from 'dotenv'
 import {DataSource} from 'typeorm'
-import {Users} from './src/entity/UserModel'
- 
+import {Users} from './entity/UserModel'
+dotenv.config();
 export const UserDbDataSource = new DataSource({
     migrationsRun: true,
     type: 'mysql',
@@ -12,6 +12,6 @@ export const UserDbDataSource = new DataSource({
     password: process.env.DB_ACCESS_PASSWORD || "",
     database: process.env.DB_ACCESS_NAME || "",
     entities: [Users],
-    migrations: ['src/migrations/user_db/*.ts'],
+    migrations: ['/src/migrations/user_db/*.ts'],
     synchronize: false
 })

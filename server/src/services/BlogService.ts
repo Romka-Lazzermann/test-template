@@ -1,17 +1,19 @@
 import { DataSource, Repository } from "typeorm";
 import {Blog} from '../entity/BlogModel'
 import Gemini from "../services/AIPromtService"
+import { injectable, inject } from 'tsyringe';
 
+@injectable()
 export class BlogService {
     protected blogRepo : Repository<Blog>;
 
-    constructor(private datasource: DataSource) {
+    constructor(@inject("AppDataSource") private datasource: DataSource) {
         this.blogRepo = this.datasource.getRepository(Blog)
     }
     
      private cutBlogParts(text: string){
          let match;
-        let answer = {}
+        let answer : Partial<any> = {}
         match = text.match(/#title_start#([\s\S]*?)#title_end#/)
         if(match){
             answer['title'] =  match[1].trim()

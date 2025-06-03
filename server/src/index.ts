@@ -1,23 +1,30 @@
 import 'reflect-metadata'
+import { container } from 'tsyringe'
 import express from 'express'
-import { AppDataSource } from '../ormconfig'
-import {UserDbDataSource} from '../dbusersconfig'
+import { AppDataSource } from './ormconfig'
+import {UserDbDataSource} from './dbusersconfig'
 import {createBlogRoutes} from './routes/blog'
 import {createAuthRoutes} from './routes/auth'
 import { createCategoryRoutes } from './routes/category'
 import bodyParser from 'body-parser'
-import 'dotenv/config';
+import dotenv from 'dotenv'
+import './container'
+dotenv.config()
 
 const app = express()
 
 const PORT = process.env.PORT || 3000;
+
 Promise.all([AppDataSource.initialize(), UserDbDataSource.initialize()]).then(() => {
+  container.registerInstance('AppDataSource', AppDataSource);
+  container.registerInstance('UserDbDataSource', UserDbDataSource);
+
   console.log('Data Source has been initialized!')
   app.use('/assets', express.static('assets'))
   app.use(bodyParser.json())
   
-  app.use('/auth', createAuthRoutes(UserDbDataSource))
-  app.use('/blogs', createBlogRoutes(AppDataSource))
+  app.use('/auth', createAuthRoutes())
+  app.use('/blogs', createBlogRoutes())
   app.use('/category', createCategoryRoutes(AppDataSource))
 
   

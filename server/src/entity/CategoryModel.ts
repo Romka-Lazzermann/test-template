@@ -5,23 +5,23 @@ import { Blog } from "./BlogModel";
 export class Category {
 
     @PrimaryGeneratedColumn()
-    id: number;
+    id!: number;
 
     @Column({nullable: true, type: "text"})
-    title: string;
+    title!: string;
 
     @Column({nullable: true, type: "text"})
-    name: string;
+    name!: string;
 
     @Column({type: "int"})
-    status: number;
+    status!: number;
 
     @Column({type: "timestamp"})
-    time_create: number
+    time_create!: number
 
     @Column({nullable: true, type: "text"})
-    description: string;
+    description!: string;
 
     @OneToMany(() => Blog, (blog) => blog.category_id)
-    blogs: Blog[];
+    blogs!: Blog[];
 }

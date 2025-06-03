@@ -1,24 +1,21 @@
 import { Router } from 'express';
 import { BlogService } from '../services/BlogService';
 import { Request, Response } from 'express';
-import { upload } from '../middlewares/uploadMiddleware';
+import {upload} from '../middlewares/uploadMiddleware';
 import { MulterRequest } from '../interfaces'
 import fs from 'fs';
 import path from 'path';
+import { container } from 'tsyringe'
 
 const router = Router();
 
-export const createBlogRoutes = (dataSource) => {
-  const blogService = new BlogService(dataSource);
+export const createBlogRoutes = () => {
+  const blogService = container.resolve(BlogService);
   
   router.post('/', upload.single('img'), async (req : MulterRequest | Request, res ) => {
     try {
-      const { title, description, category_id, status } = req.body;
       const blog = await blogService.create({
-        title,
-        description,
-        category_id,
-        status,
+        ...req.body,
         img: req.file ? req.file.path : ""
       });
       res.status(201).json(blog);
@@ -31,7 +28,6 @@ export const createBlogRoutes = (dataSource) => {
             }
         })
       }
-      console.log("Error message : ", err.message)
       res.status(400).json({ success: 0, error: "Error while creating a blog" });
     }
   });

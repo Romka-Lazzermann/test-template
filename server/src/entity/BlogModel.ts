@@ -4,36 +4,36 @@ import { Category } from "./CategoryModel";
 @Entity()
 export class Blog {
     @PrimaryGeneratedColumn()
-    id: number
+    id!: number
 
     @ManyToOne(() => Category, (category) => category.blogs, {nullable: false})
     @JoinColumn({ name: 'category_id' })
-    category_id: Category
+    category_id!: Category
 
     @Column({nullable: true, type: "text"})
-    name: string
+    name!: string
 
     @Column({type: "int"})
-    status: number
+    status!: number
 
     @Column({type: "int", width: 11})
-    time_create: number
+    time_create!: number
 
     @Column({nullable: true, type: "text"})
-    title: string
+    title!: string
 
     @Column({nullable: true, type: "text"})
-    description: string
+    description!: string
 
     @Column({nullable: true, type: "text"})
-    sub_description: string
+    sub_description!: string
 
     @Column({nullable: true, type: "text"})
-    img: string
+    img!: string
 
     @Column({nullable: true, type: "text"})
-    keywords: string
+    keywords!: string
 
     @Column({type: "int"})
-    view: number
+    view!: number
 }

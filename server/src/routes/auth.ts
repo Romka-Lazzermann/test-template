@@ -2,11 +2,13 @@ import { Router } from 'express';
 import { Request, Response } from 'express';
 import {UserService} from '../services/UseService'
 import validator from "validator"
+import { container } from 'tsyringe';
 
 const router = Router();
 
-export const createAuthRoutes = (UserDbDataSource) => {
-    const userService = new UserService(UserDbDataSource);
+export const createAuthRoutes = () => {
+    const userService = container.resolve(UserService)
+
     router.post("/register", async (req: Request, res: Response) => {
     
     const { login, password } = req.body;
