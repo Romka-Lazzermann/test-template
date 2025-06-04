@@ -1,0 +1,23 @@
+import { DataSource, Repository } from "typeorm";
+import { Channel } from "../entity/ChannelModel";
+import { inject, injectable } from 'tsyringe'
+
+@injectable()
+export class ChannelService {
+    protected ChannelRepo: Repository<Channel>;
+
+    constructor(@inject("AppDataSource") private datasource: DataSource) {
+        this.ChannelRepo = datasource.getRepository(Channel);
+    }
+
+
+    async findAll() {
+        return await this.ChannelRepo.find();
+    }
+
+    async create(data: Partial<Channel>) {
+        const channel = this.ChannelRepo.create(data);
+        return await this.ChannelRepo.save(channel);
+    }
+
+}

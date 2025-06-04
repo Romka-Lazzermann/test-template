@@ -6,6 +6,8 @@ import {UserDbDataSource} from './dbusersconfig'
 import {createBlogRoutes} from './routes/blog'
 import {createAuthRoutes} from './routes/auth'
 import { createCategoryRoutes } from './routes/category'
+import { createChannelRoutes } from './routes/channel'
+import { createStyleRoutes } from './routes/style'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import './container'
@@ -26,7 +28,8 @@ Promise.all([AppDataSource.initialize(), UserDbDataSource.initialize()]).then(()
   app.use('/auth', createAuthRoutes())
   app.use('/blogs', createBlogRoutes())
   app.use('/categories', createCategoryRoutes())
-
+  app.use('/channels', createChannelRoutes())
+  app.use('/styles', createStyleRoutes())
   
 
   app.listen(PORT, () => {
