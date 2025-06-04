@@ -20,7 +20,7 @@ export class ChannelService {
             channel_value: data.channel_value,
             channel_key: data.channel_key
         })
-        if(_channel){
+        if(_channel?.length){
             return null
         }
         const channel = this.ChannelRepo.create(data);

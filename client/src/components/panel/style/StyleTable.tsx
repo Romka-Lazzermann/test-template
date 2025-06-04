@@ -2,19 +2,18 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import modalStyles from '@/components/index.module.css';
 import CreateFormModal from '@/components/modals/CreateFormModal';
-import styles from '@/components/index.module.css'
-interface Category {
+
+
+interface Style {
     id: string,
-    title: string,
-    description: string,
-    status: string,
-    create_date: string
+    style_key: string,
 }
 
-export default function CategoryTable() {
+export default function StylesTable() {
     const router = useRouter();
-    const [categories, setCategories] = useState<Array<Category>>([])
+    const [styles, setStyles] = useState<Array<Style>>([])
     const [show, setShow] = useState(false);
 
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -23,18 +22,15 @@ export default function CategoryTable() {
         }
     }
 
-    const generate_rows = (categories: Array<Category>) => {
-        return categories?.map((category: Category) => {
+    const generate_rows = (styles: Array<Style>) => {
+        return styles?.map((style: Style) => {
             return (
-                <tr key={category.id}>
+                <tr key={style.id}>
                     <td>
-                        {category.title}
+                        #{style.id}
                     </td>
                     <td>
-                        {category.status}
-                    </td>
-                    <td>
-                        {category.create_date}
+                        {style.style_key}
                     </td>
                     <td>
                         <button type='button' className='btn btn-sm btn-danger'>
@@ -53,26 +49,26 @@ export default function CategoryTable() {
         setShow(true);
     }
 
-    const rows = useMemo(() => generate_rows(categories), [categories])
+    const rows = useMemo(() => generate_rows(styles), [styles])
 
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            const res = await fetch('/api/categories', {
+        const fetchStyles = async () => {
+            const res = await fetch('/api/styles', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
-            const json: Array<Category> = await res.json();
+            const json: Array<Style> = await res.json();
             if (res.ok) {
-                console.log("Fetched categories", json)
-                setCategories([...json])
+                console.log("Fetched styless", json)
+                setStyles([...json])
             } else {
                 console.error("Fetch error")
             }
         }
-        fetchCategories();
+        fetchStyles();
     }, [])
 
     const handleCreateFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -84,7 +80,7 @@ export default function CategoryTable() {
             json[k] = v;
         })
 
-        const res = await fetch('/api/categories/', {
+        const res = await fetch('/api/styles/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -94,13 +90,14 @@ export default function CategoryTable() {
         if (res.ok) {
             const data = await res.json();
             console.log("created successfully", data)
+            setStyles([...styles, data])
         } else {
             const data = await res.json();
             console.error("created error", data)
         }
     }
 
-    if (!categories) {
+    if (!styles) {
         return <div>Loading...</div>;
     }
 
@@ -121,12 +118,11 @@ export default function CategoryTable() {
             </div>
             <h2 className="mt-4">Category</h2>
             <div className='table-responsive'>
-                <table className={`table table-dark`}>
+                <table className={`${modalStyles.table_rounded} table table-dark`}>
                     <thead>
                         <tr>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Create</th>
+                            <th>Id</th>
+                            <th>Style Key</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -135,25 +131,22 @@ export default function CategoryTable() {
                     </tbody>
                 </table>
             </div>
-            <CreateFormModal  show={show} setShow={setShow}>
+
+            <CreateFormModal show={show} setShow={setShow}>
                 <form onSubmit={handleCreateFormSubmit}>
-                    <div className={styles.modal_header}>
-                        <h2>Add Category</h2>
+                    <div className={modalStyles.modal_header}>
+                        <h2>Add Channel</h2>
                         <button type="button" onClick={() => setShow(false)}>×</button>
                     </div>
 
-                    <div className={styles.modal_body}>
+                    <div className={modalStyles.modal_body}>
                         <label className="form-label">
-                            Title
-                            <input className='form-control w-100' type="text" name="title" required />
-                        </label>
-                        <label>
-                            Description:
-                            <textarea className='form-control w-100' name="description" required />
+                            Style Key
+                            <input className='form-control w-100' type="text" name="style_key" required />
                         </label>
                     </div>
 
-                    <div className={styles.modal_footer}>
+                    <div className={modalStyles.modal_footer}>
                         <button className='btn btn-primary' type="submit">Add</button>
                         <button className='btn btn-danger' type="button" onClick={() => setShow(false)}>Close</button>
                     </div>

@@ -2,19 +2,18 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import styles from '@/components/index.module.css';
 import CreateFormModal from '@/components/modals/CreateFormModal';
-import styles from '@/components/index.module.css'
-interface Category {
+
+interface Channel {
     id: string,
-    title: string,
-    description: string,
-    status: string,
-    create_date: string
+    channel_key: string,
+    channel_value: string,
 }
 
-export default function CategoryTable() {
+export default function ChannelTable() {
     const router = useRouter();
-    const [categories, setCategories] = useState<Array<Category>>([])
+    const [channels, setChannels] = useState<Array<Channel>>([])
     const [show, setShow] = useState(false);
 
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -23,18 +22,18 @@ export default function CategoryTable() {
         }
     }
 
-    const generate_rows = (categories: Array<Category>) => {
-        return categories?.map((category: Category) => {
+    const generate_rows = (channels: Array<Channel>) => {
+        return channels?.map((channel: Channel) => {
             return (
-                <tr key={category.id}>
+                <tr key={channel.id}>
                     <td>
-                        {category.title}
+                        #{channel.id}
                     </td>
                     <td>
-                        {category.status}
+                        {channel.channel_key}
                     </td>
                     <td>
-                        {category.create_date}
+                        {channel.channel_value}
                     </td>
                     <td>
                         <button type='button' className='btn btn-sm btn-danger'>
@@ -53,26 +52,26 @@ export default function CategoryTable() {
         setShow(true);
     }
 
-    const rows = useMemo(() => generate_rows(categories), [categories])
+    const rows = useMemo(() => generate_rows(channels), [channels])
 
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            const res = await fetch('/api/categories', {
+        const fetchChannels = async () => {
+            const res = await fetch('/api/channels', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
                 }
             })
-            const json: Array<Category> = await res.json();
+            const json: Array<Channel> = await res.json();
             if (res.ok) {
-                console.log("Fetched categories", json)
-                setCategories([...json])
+                console.log("Fetched channels", json)
+                setChannels([...json])
             } else {
                 console.error("Fetch error")
             }
         }
-        fetchCategories();
+        fetchChannels();
     }, [])
 
     const handleCreateFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -84,7 +83,7 @@ export default function CategoryTable() {
             json[k] = v;
         })
 
-        const res = await fetch('/api/categories/', {
+        const res = await fetch('/api/channels/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -94,13 +93,14 @@ export default function CategoryTable() {
         if (res.ok) {
             const data = await res.json();
             console.log("created successfully", data)
+            setChannels([...channels, data])
         } else {
             const data = await res.json();
             console.error("created error", data)
         }
     }
 
-    if (!categories) {
+    if (!channels) {
         return <div>Loading...</div>;
     }
 
@@ -121,12 +121,12 @@ export default function CategoryTable() {
             </div>
             <h2 className="mt-4">Category</h2>
             <div className='table-responsive'>
-                <table className={`table table-dark`}>
+                <table className={`${styles.table_rounded} table table-dark`}>
                     <thead>
                         <tr>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Create</th>
+                            <th>Id</th>
+                            <th>Channel ID</th>
+                            <th>Channel Name</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -135,21 +135,22 @@ export default function CategoryTable() {
                     </tbody>
                 </table>
             </div>
-            <CreateFormModal  show={show} setShow={setShow}>
+
+            <CreateFormModal show={show} setShow={setShow}>
                 <form onSubmit={handleCreateFormSubmit}>
                     <div className={styles.modal_header}>
-                        <h2>Add Category</h2>
+                        <h2>Add Channel</h2>
                         <button type="button" onClick={() => setShow(false)}>×</button>
                     </div>
 
                     <div className={styles.modal_body}>
                         <label className="form-label">
-                            Title
-                            <input className='form-control w-100' type="text" name="title" required />
+                            Channel ID
+                            <input className='form-control w-100' type="text" name="channel_key" required />
                         </label>
                         <label>
-                            Description:
-                            <textarea className='form-control w-100' name="description" required />
+                            Channel Name:
+                            <input className='form-control w-100' name="channel_value" required />
                         </label>
                     </div>
 

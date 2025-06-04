@@ -19,7 +19,7 @@ export class StyleService {
         const _style = await this.StyleRepo.findBy({
             style_key : data.style_key
         })
-        if(_style){
+        if(_style?.length){
             return null
         }
         const Style = this.StyleRepo.create(data);

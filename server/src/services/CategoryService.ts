@@ -23,13 +23,13 @@ export class CategoryService {
     if (!data?.name) {
       data.name = data.title?.toLowerCase();
     }
-    const _category = await this.CategoryRepo.findOneBy({
+    const _category = await this.CategoryRepo.findBy({
       name: data.name
     })
-    if (_category) {
+    if (_category?.length) {
       return null
     }
-    
+
     data.time_create = Math.floor(Date.now() / 1000);
     const category = this.CategoryRepo.create(data);
     return await this.CategoryRepo.save(category);

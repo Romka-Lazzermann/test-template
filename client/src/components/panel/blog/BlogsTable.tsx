@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from './index.module.css';
+import styles from '@/components/index.module.css';
+import CreateFormModal from '@/components/modals/CreateFormModal';
 
 interface Blog {
     id: string,
@@ -60,7 +61,7 @@ export default function BlogsTable() {
     const generate_selects = (categories: Array<Category>) => {
         return categories?.map((category) => {
             return (
-                  <option key={`key_${category.id}`} value={category.id}>{category.title}</option>
+                <option key={`key_${category.id}`} value={category.id}>{category.title}</option>
             )
         })
     }
@@ -166,42 +167,38 @@ export default function BlogsTable() {
                 </table>
             </div>
 
-            {show && (
-                <div className={`${styles.modal_backdrop}`} onClick={handleBackdropClick}>
-                    <div className={`${styles.modal}`}>
-                        <form onSubmit={handleCreateFormSubmit}>
-                            <div className={styles.modal_header}>
-                                <h2>Add Blog</h2>
-                                <button type="button" onClick={() => setShow(false)}>×</button>
-                            </div>
-
-                            <div className={styles.modal_body}>
-                                <label className="form-label">
-                                    Title
-                                    <input className='form-control w-100' type="text" name="title" required />
-                                </label>
-
-                                <label>
-                                    <select className='form-select' name="category_id" required>
-                                        <option key={"key_0"} value="">Choose Category</option>
-                                        {selectors}
-                                    </select>
-                                </label>
-
-                                <label>
-                                    Image:
-                                    <input className='w-100' type="file" name="img" accept="image/*" required />
-                                </label>
-                            </div>
-
-                            <div className={styles.modal_footer}>
-                                <button className='btn btn-primary' type="submit">Add</button>
-                                <button className='btn btn-danger' type="button" onClick={() => setShow(false)}>Close</button>
-                            </div>
-                        </form>
+            <CreateFormModal show={show} setShow={setShow}>
+                <form onSubmit={handleCreateFormSubmit}>
+                    <div className={styles.modal_header}>
+                        <h2>Add Blog</h2>
+                        <button type="button" onClick={() => setShow(false)}>×</button>
                     </div>
-                </div>
-            )}
+
+                    <div className={styles.modal_body}>
+                        <label className="form-label">
+                            Title
+                            <input className='form-control w-100' type="text" name="title" required />
+                        </label>
+
+                        <label>
+                            <select className='form-select' name="category_id" required>
+                                <option key={"key_0"} value="">Choose Category</option>
+                                {selectors}
+                            </select>
+                        </label>
+
+                        <label>
+                            Image:
+                            <input className='w-100' type="file" name="img" accept="image/*" required />
+                        </label>
+                    </div>
+
+                    <div className={styles.modal_footer}>
+                        <button className='btn btn-primary' type="submit">Add</button>
+                        <button className='btn btn-danger' type="button" onClick={() => setShow(false)}>Close</button>
+                    </div>
+                </form>
+            </CreateFormModal>
 
         </>
     )
