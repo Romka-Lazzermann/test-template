@@ -1,12 +1,11 @@
 import { Router } from "express";
 import { CategoryService } from "../services/CategoryService";
 import { DataSource } from "typeorm";
-import { Category } from "../entity/CategoryModel";
 import { Request, Response } from 'express';
+import { container } from "tsyringe";
 
-export const createCategoryRoutes = (dataSource: DataSource) => {
-  const repo = dataSource.getRepository(Category);
-  const service = new CategoryService(repo);
+export const createCategoryRoutes = () => {
+  const service = container.resolve(CategoryService);
   const router = Router();
   
 

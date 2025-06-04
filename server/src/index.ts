@@ -25,7 +25,7 @@ Promise.all([AppDataSource.initialize(), UserDbDataSource.initialize()]).then(()
   
   app.use('/auth', createAuthRoutes())
   app.use('/blogs', createBlogRoutes())
-  app.use('/category', createCategoryRoutes(AppDataSource))
+  app.use('/categories', createCategoryRoutes())
 
   
 

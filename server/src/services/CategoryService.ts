@@ -1,28 +1,34 @@
-import { Repository } from "typeorm";
+import { DataSource, Repository } from "typeorm";
 import { Category } from "../entity/CategoryModel";
+import {inject, injectable} from 'tsyringe'
 
+@injectable()
 export class CategoryService {
-  constructor(private repo: Repository<Category>) {}
+  protected CategoryRepo: Repository<Category>;
+
+  constructor(@inject("AppDataSource") private datasource: DataSource) {
+    this.CategoryRepo = datasource.getRepository(Category);
+  }
 
   async findAll() {
-    return await this.repo.find();
+    return await this.CategoryRepo.find();
   }
 
   async findOne(id: number) {
-    return await this.repo.findOneBy({ id });
+    return await this.CategoryRepo.findOneBy({ id });
   }
 
   async create(data: Partial<Category>) {
-    const category = this.repo.create(data);
-    return await this.repo.save(category);
+    const category = this.CategoryRepo.create(data);
+    return await this.CategoryRepo.save(category);
   }
 
   async update(id: number, data: Partial<Category>) {
-    await this.repo.update(id, data);
+    await this.CategoryRepo.update(id, data);
     return await this.findOne(id);
   }
 
   async delete(id: number) {
-    return await this.repo.delete(id);
+    return await this.CategoryRepo.delete(id);
   }
 }
