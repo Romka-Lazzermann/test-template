@@ -16,6 +16,12 @@ export class StyleService {
     }
 
     async create(data: Partial<Style>) {
+        const _style = await this.StyleRepo.findBy({
+            style_key : data.style_key
+        })
+        if(_style){
+            return null
+        }
         const Style = this.StyleRepo.create(data);
         return await this.StyleRepo.save(Style);
     }

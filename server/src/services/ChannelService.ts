@@ -16,6 +16,13 @@ export class ChannelService {
     }
 
     async create(data: Partial<Channel>) {
+        const _channel = await this.ChannelRepo.findBy({
+            channel_value: data.channel_value,
+            channel_key: data.channel_key
+        })
+        if(_channel){
+            return null
+        }
         const channel = this.ChannelRepo.create(data);
         return await this.ChannelRepo.save(channel);
     }

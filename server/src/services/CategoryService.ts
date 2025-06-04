@@ -1,6 +1,6 @@
 import { DataSource, Repository } from "typeorm";
 import { Category } from "../entity/CategoryModel";
-import {inject, injectable} from 'tsyringe'
+import { inject, injectable } from 'tsyringe'
 
 @injectable()
 export class CategoryService {
@@ -19,9 +19,17 @@ export class CategoryService {
   }
 
   async create(data: Partial<Category>) {
-    if(!data?.name){
+
+    if (!data?.name) {
       data.name = data.title?.toLowerCase();
     }
+    const _category = await this.CategoryRepo.findOneBy({
+      name: data.name
+    })
+    if (_category) {
+      return null
+    }
+    
     data.time_create = Math.floor(Date.now() / 1000);
     const category = this.CategoryRepo.create(data);
     return await this.CategoryRepo.save(category);

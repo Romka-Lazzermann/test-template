@@ -21,7 +21,13 @@ export const createStyleRoutes = () => {
     router.post("/", async (req: Request, res: Response) => {
         try {
             const data = await service.create(req.body);
-            res.status(201).json(data);
+            if (data) {
+                res.status(201).json(data);
+            }
+            else {
+                res.status(409).json({ success: 0, error: `This Style is already exists` });
+
+            }
         }
         catch (err) {
             res.status(400).json({ success: 0, error: `Error while creating style : ${err}` });

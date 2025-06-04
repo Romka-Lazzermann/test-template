@@ -8,7 +8,7 @@ export const createCategoryRoutes = () => {
   const router = Router();
   
 
-  router.get("/", async (req : Request, res: Response) => {
+  router.get("/", async (req: Request, res: Response) => {
     const data = await service.findAll();
     const prepared_data = data.map((category) => {
       return {
@@ -22,26 +22,37 @@ export const createCategoryRoutes = () => {
     res.json(prepared_data);
   });
 
-  router.get("/:id", async (req : Request, res: Response) => {
+  router.get("/:id", async (req: Request, res: Response) => {
     const data = await service.findOne(Number(req.params.id));
-    if (!data){
-        res.status(404).json({ message: "Not found" });
-        return
-    }  
+    if (!data) {
+      res.status(404).json({ message: "Not found" });
+      return
+    }
     res.json(data);
   });
 
-  router.post("/", async (req : Request, res: Response) => {
-    const data = await service.create(req.body);
-    res.status(201).json(data);
+  router.post("/", async (req: Request, res: Response) => {
+    try {
+      const data = await service.create(req.body);
+      if (data) {
+        res.status(201).json(data);
+      } else {
+        res.status(409).json({ success: 0, error: `This Category is already exists` });
+
+      }
+    } catch (err) {
+      res.status(400).json({ success: 0, error: `Error while creating category : ${err}` });
+
+    }
+
   });
 
-  router.put("/:id", async (req : Request, res: Response) => {
+  router.put("/:id", async (req: Request, res: Response) => {
     const data = await service.update(Number(req.params.id), req.body);
     res.json(data);
   });
 
-  router.delete("/:id", async (req : Request, res: Response) => {
+  router.delete("/:id", async (req: Request, res: Response) => {
     await service.delete(Number(req.params.id));
     res.status(204).send();
   });
