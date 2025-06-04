@@ -12,7 +12,7 @@ export const createAuthRoutes = () => {
     router.post("/register", async (req: Request, res: Response) => {
     
     const { login, password } = req.body;
-    if(!validator.isEmail(login)){
+    if(!login){
         res.status(401).json({
             message: "You must provide the email",
             success: 0
@@ -41,7 +41,7 @@ export const createAuthRoutes = () => {
 
     router.post("/login", async (req: Request, res: Response) => {
         const { login, password } = req.body;
-        if(validator.isEmail(login)){
+        if(login){
             const loginResult = await userService.loginUser({
                 login,
                 password
