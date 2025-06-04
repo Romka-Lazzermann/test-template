@@ -19,6 +19,10 @@ export class CategoryService {
   }
 
   async create(data: Partial<Category>) {
+    if(!data?.name){
+      data.name = data.title?.toLowerCase();
+    }
+    data.time_create = Math.floor(Date.now() / 1000);
     const category = this.CategoryRepo.create(data);
     return await this.CategoryRepo.save(category);
   }

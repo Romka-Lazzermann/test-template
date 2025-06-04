@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
   const headers = new Headers(request.headers);
 
   let body: any = null;
-
+  let _set_headers = true;
   const contentType = headers.get('content-type') || '';
   if (contentType.includes('application/json')) {
     const json = await request.json();
@@ -34,14 +34,21 @@ export async function POST(request: NextRequest) {
   }
   else if (contentType.includes('multipart/form-data')) {
     body = await request.formData();
+    _set_headers = false;
   }
   else {
     body = await request.body;
+    _set_headers = false
   }
-  
+  const request_options = _set_headers ? {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  } : {}
   const response = await fetch(targetUrl, {
     method: 'POST',
     body,
+    ...request_options
   });
 
   const data = await response.json();

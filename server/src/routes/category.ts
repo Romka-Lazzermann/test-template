@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { CategoryService } from "../services/CategoryService";
-import { DataSource } from "typeorm";
 import { Request, Response } from 'express';
 import { container } from "tsyringe";
 
@@ -14,7 +13,10 @@ export const createCategoryRoutes = () => {
     const prepared_data = data.map((category) => {
       return {
         title: category.title,
-        id: category.id
+        id: category.id,
+        description: category.description,
+        status: category.status ? "On" : "Off",
+        create_date: category.time_create
       }
     })
     res.json(prepared_data);
