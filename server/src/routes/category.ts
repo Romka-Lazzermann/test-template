@@ -11,7 +11,13 @@ export const createCategoryRoutes = () => {
 
   router.get("/", async (req : Request, res: Response) => {
     const data = await service.findAll();
-    res.json(data);
+    const prepared_data = data.map((category) => {
+      return {
+        title: category.title,
+        id: category.id
+      }
+    })
+    res.json(prepared_data);
   });
 
   router.get("/:id", async (req : Request, res: Response) => {

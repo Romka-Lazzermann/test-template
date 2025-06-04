@@ -31,14 +31,16 @@ export async function POST(request: NextRequest) {
   if (contentType.includes('application/json')) {
     const json = await request.json();
     body = JSON.stringify(json);
-  } 
+  }
+  else if (contentType.includes('multipart/form-data')) {
+    body = await request.formData();
+  }
   else {
     body = await request.body;
   }
   
   const response = await fetch(targetUrl, {
     method: 'POST',
-    headers: request.headers,
     body,
   });
 

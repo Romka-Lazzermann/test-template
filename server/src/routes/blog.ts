@@ -28,14 +28,24 @@ export const createBlogRoutes = () => {
             }
         })
       }
-      res.status(400).json({ success: 0, error: "Error while creating a blog" });
+      res.status(400).json({ success: 0, error: `Error while creating a blog : ${err}` });
     }
   });
 
   
   router.get('/', async (_req : Request, res : Response) => {
     const blogs = await blogService.findAll();
-    res.json(blogs);
+    const prepared_data = blogs.map((blogs) => {
+      return {
+        id: blogs.id,
+        title: blogs.title,
+        description: blogs.description,
+        category: blogs.category_id.title,
+        create_date: blogs.time_create,
+        keywords: JSON.parse(blogs.keywords)
+      }
+    })
+    res.json(prepared_data);
   });
 
   router.get('/:id', async (req : Request, res : Response) => {
