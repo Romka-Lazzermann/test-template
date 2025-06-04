@@ -124,6 +124,7 @@ export default function BlogsTable() {
         if (res.ok) {
             const data = await res.json();
             console.log("created successfully", data)
+            setBlogs([...blogs, data])
         } else {
             const data = await res.json();
             console.error("created error", data)

@@ -94,6 +94,7 @@ export default function CategoryTable() {
         if (res.ok) {
             const data = await res.json();
             console.log("created successfully", data)
+            setCategories([...categories, data])
         } else {
             const data = await res.json();
             console.error("created error", data)
