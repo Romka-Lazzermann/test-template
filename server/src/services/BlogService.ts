@@ -40,14 +40,19 @@ export class BlogService {
         }
         return answer
      }
-     async create(blogData: Partial<Blog>): Promise<Blog> {
+     async create(blogData: Partial<Blog>): Promise<Blog | null> {
         const blog_prompt =  await Gemini.generateBlogContent(blogData.title || null)
 
         const _blog_text_parts = this.cutBlogParts(blog_prompt.text);
 
         const blog = this.blogRepo.create({...blogData, ..._blog_text_parts});
         blog.time_create = Math.floor(Date.now() / 1000);
-        return await this.blogRepo.save(blog);
+        const _blog = await this.blogRepo.save(blog);
+        const populated_blog = await this.blogRepo.findOne({
+            relations: ['category_id'],
+            where: {id : _blog.id}
+        })
+        return populated_blog || null
     }
 
     async findAll(): Promise<Blog[]> {

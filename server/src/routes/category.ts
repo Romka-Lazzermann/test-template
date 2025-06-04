@@ -6,7 +6,7 @@ import { container } from "tsyringe";
 export const createCategoryRoutes = () => {
   const service = container.resolve(CategoryService);
   const router = Router();
-  
+
 
   router.get("/", async (req: Request, res: Response) => {
     const data = await service.findAll();
@@ -35,7 +35,16 @@ export const createCategoryRoutes = () => {
     try {
       const data = await service.create(req.body);
       if (data) {
-        res.status(201).json(data);
+        const prepared_data = {
+          title: data.title,
+          id: data.id,
+          description: data.description,
+          status: data.status ? "On" : "Off",
+          create_date: data.time_create
+        }
+
+
+        res.status(201).json(prepared_data);
       } else {
         res.status(409).json({ success: 0, error: `This Category is already exists` });
 

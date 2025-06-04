@@ -14,11 +14,20 @@ export const createBlogRoutes = () => {
   
   router.post('/', upload.single('img'), async (req : MulterRequest | Request, res ) => {
     try {
-      const blog = await blogService.create({
+      const blog :any = await blogService.create({
         ...req.body,
         img: req.file ? req.file.path : ""
       });
-      res.status(201).json(blog);
+      const prepared_data = {
+        id: blog.id,
+        title: blog.title,
+        description: blog.description,
+        category: blog.category_id.title,
+        create_date: blog.time_create,
+        keywords: JSON.parse(blog.keywords)
+      }
+    
+      res.status(201).json(prepared_data);
     } catch (err) {
       if(req?.file){
         const filepath = path.join(__dirname, '../..', 'assets', req.file.filename)
