@@ -35,4 +35,18 @@ export class ChannelService {
         return _saved
     }
 
+    async update(id: number, data: Partial<Channel>){
+         const _channel = await this.ChannelRepo.findBy({
+            channel_value: data.channel_value,
+            channel_key: data.channel_key
+        })
+        if (_channel?.length) {
+            return null
+        }
+        await this.ChannelRepo.update(id, data)
+        return this.ChannelRepo.findOneBy({
+            id
+        })
+    }
+
 }

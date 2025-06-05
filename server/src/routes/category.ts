@@ -57,16 +57,27 @@ export const createCategoryRoutes = () => {
   });
 
   router.put("/:id", async (req: Request, res: Response) => {
-    const {title, description} = req.body
-    const data = await service.update(Number(req.params.id), {title, description});
-    const prepared_data = {
+    try {
+      const { title, description } = req.body
+      const data = await service.update(Number(req.params.id), { title, description });
+      if (data) {
+        const prepared_data = {
           title: data?.title,
           id: data?.id,
           description: data?.description,
           status: data?.status ? "On" : "Off",
           create_date: data?.time_create
         }
-    res.json(prepared_data);
+        res.json(prepared_data);
+      } else {
+        res.status(409).json({ success: 0, error: `This Category is already exists` });
+      }
+    }
+    catch (err) {
+      res.status(400).json({ success: 0, error: `Error while updating category : ${err}` });
+
+    }
+
   });
 
   router.delete("/:id", async (req: Request, res: Response) => {

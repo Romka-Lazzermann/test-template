@@ -36,6 +36,13 @@ export class CategoryService {
   }
 
   async update(id: number, data: Partial<Category>) {
+    const name = data?.title?.toLowerCase();
+    const _category = await this.CategoryRepo.findBy({
+      name
+    })
+    if (_category?.length) {
+      return null
+    }
     await this.CategoryRepo.update(id, data);
     return await this.findOne(id);
   }
