@@ -24,7 +24,9 @@ export const createBlogRoutes = () => {
         description: blog.description,
         category: blog.category_id.title,
         create_date: blog.time_create,
-        keywords: JSON.parse(blog.keywords)
+        keywords: JSON.parse(blog.keywords),
+        sub_description: blog.sub_description,
+        category_id: blog.category_id.id
       }
     
       res.status(201).json(prepared_data);
@@ -51,7 +53,9 @@ export const createBlogRoutes = () => {
         description: blogs.description,
         category: blogs.category_id.title,
         create_date: blogs.time_create,
-        keywords: JSON.parse(blogs.keywords)
+        keywords: JSON.parse(blogs.keywords),
+        sub_description: blogs.sub_description,
+        category_id: blogs.category_id.id
       }
     })
     res.json(prepared_data);
@@ -66,15 +70,36 @@ export const createBlogRoutes = () => {
     res.json(blog);
   });
 
-  router.put('/:id', async (req : Request, res : Response) => {
+  router.put('/:id', upload.single('img'), async (req : any, res : Response) => {
     try {
-      const updated = await blogService.update(Number(req.params.id), req.body);
+      const updated = await blogService.update(Number(req.params.id), {
+        ...req.body,
+        img: req.file ? req.file.path : ""
+      });
       if (!updated) {
         res.status(404).json({ message: 'Blog not found' });
         return
       }
-      res.json(updated);
+      const prepared_data = {
+        id: updated.id,
+        title: updated.title,
+        description: updated.description,
+        category: updated.category_id.title,
+        create_date: updated.time_create,
+        keywords: JSON.parse(updated.keywords),
+        sub_description: updated.sub_description,
+        category_id: updated.category_id.id
+      }
+      res.json(prepared_data);
     } catch (err) {
+      if(req?.file){
+        const filepath = path.join(__dirname, '../..', 'assets', req.file.filename)
+        fs.unlink(filepath, (unlinkErr) => {
+            if(unlinkErr){
+              console.error("Error while deleting file")
+            }
+        })
+      }
       res.status(400).json({ error: err.message });
     }
   });

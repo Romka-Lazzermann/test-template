@@ -4,15 +4,19 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from '@/components/index.module.css';
 import CreateFormModal from '@/components/modals/CreateFormModal';
-
-interface Blog {
+import { fetchCategories } from '../category/fetchCalls'
+import { fetchBlogs, createBlog, updateBlog } from './fetchCalls'
+import BlogForm from './BlogForm';
+export interface Blog {
     id: string,
     title: string
     category: string
     status: boolean,
     create_date: string,
     description: string,
-    keywords: Array<string>
+    keywords: Array<string>,
+    category_id: number,
+    sub_description: string
 }
 
 interface Category {
@@ -24,13 +28,8 @@ export default function BlogsTable() {
     const router = useRouter();
     const [blogs, setBlogs] = useState<Array<Blog>>([]);
     const [categories, setCategories] = useState<Array<Category>>([])
+    const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null)
     const [show, setShow] = useState(false);
-
-    const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (e.target === e.currentTarget) {
-            setShow(false)
-        }
-    }
 
     const generate_rows = (blogs: Array<Blog>) => {
         return blogs?.map((blog: Blog) => {
@@ -49,7 +48,10 @@ export default function BlogsTable() {
                         {blog.create_date}
                     </td>
                     <td>
-                        <button type='button' className='btn btn-sm btn-danger'>
+                        <button type='button' onClick={() => {
+                            setSelectedBlog(blog)
+                            setShow(true)
+                        }} className='btn btn-sm btn-danger'>
                             <i className="bi bi-pencil-square"></i>
                         </button>
                     </td>
@@ -78,57 +80,28 @@ export default function BlogsTable() {
 
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            const res = await fetch('/api/categories', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            const json: Array<Category> = await res.json();
-            if (res.ok) {
-                console.log("Fetched categories", json)
-                setCategories([...json])
-            } else {
-                console.error("Fetch error")
-            }
-        }
-
-        const fetchBlogs = async () => {
-            const res = await fetch('/api/blogs', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            const json: Array<Blog> = await res.json();
-            if (res.ok) {
-                console.log("Fetched", json)
-                setBlogs([...json])
-            } else {
-                console.error("Fetch error")
-            }
-        }
-        fetchCategories();
-        fetchBlogs();
+        fetchCategories((categories: Category[]) => {
+            setCategories([...categories])
+        })
+        fetchBlogs((blogs: Blog[]) => {
+            setBlogs([...blogs])
+        });
     }, [])
 
-    const handleCreateFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        const form = e.currentTarget;
-        const formData = new FormData(form);
-        const res = await fetch('/api/blogs/', {
-            method: 'POST',
-            body: formData
-        });
-        if (res.ok) {
-            const data = await res.json();
-            console.log("created successfully", data)
+    const fetchCreateCallback = (formData: any) => {
+        createBlog(formData, (data: Blog) => {
             setBlogs([...blogs, data])
-        } else {
-            const data = await res.json();
-            console.error("created error", data)
-        }
+        })
+        setShow(false)
+    }
+    const fetchUpdateCallback = (formData: any) => {
+
+        updateBlog(formData, (data: Blog) => {
+            const _blogs = blogs.map((item, i) => (item.id === data.id ? data : item));
+            setBlogs([..._blogs])
+        })
+        setShow(false)
+        setSelectedBlog(null)
     }
 
     if (!blogs) {
@@ -168,37 +141,16 @@ export default function BlogsTable() {
                 </table>
             </div>
 
-            <CreateFormModal show={show} setShow={setShow}>
-                <form onSubmit={handleCreateFormSubmit}>
-                    <div className={styles.modal_header}>
-                        <h2>Add Blog</h2>
-                        <button type="button" onClick={() => setShow(false)}>×</button>
-                    </div>
-
-                    <div className={styles.modal_body}>
-                        <label className="form-label">
-                            Title
-                            <input className='form-control w-100' type="text" name="title" required />
-                        </label>
-
-                        <label>
-                            <select className='form-select' name="category_id" required>
-                                <option key={"key_0"} value="">Choose Category</option>
-                                {selectors}
-                            </select>
-                        </label>
-
-                        <label>
-                            Image:
-                            <input className='w-100' type="file" name="img" accept="image/*" required />
-                        </label>
-                    </div>
-
-                    <div className={styles.modal_footer}>
-                        <button className='btn btn-primary' type="submit">Add</button>
-                        <button className='btn btn-danger' type="button" onClick={() => setShow(false)}>Close</button>
-                    </div>
-                </form>
+            <CreateFormModal handleCloseCallback={() => {
+                setSelectedBlog(null)
+            }} show={show} setShow={setShow}>
+               <BlogForm 
+               fetchUpdateCallback={fetchUpdateCallback} 
+               fetchCreateCallback={fetchCreateCallback} 
+               blog={selectedBlog} 
+               setShow={setShow}>
+                    {selectors}
+                </BlogForm>
             </CreateFormModal>
 
         </>
