@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import styles from './index.module.css';
+import { redirect } from 'next/navigation';
 
 export default function LoginForm() {
   const [login, setLogin] = useState('');
@@ -23,9 +24,10 @@ export default function LoginForm() {
     if(res.ok){
         const data = await res.json();
         console.log('Login success:', data);
+        redirect('/panel')
     }else {
         const data = await res.json();
-
+        
         console.log("something wrong",data )
     }
 
