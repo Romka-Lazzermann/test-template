@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import CreateFormModal from '@/components/modals/CreateFormModal';
 import styles from '@/components/index.module.css'
+import {fetchCategories, createCategory, updateCategory} from './fetchCalls'
 interface Category {
     id: string,
     title: string,
@@ -15,13 +16,8 @@ interface Category {
 export default function CategoryTable() {
     const router = useRouter();
     const [categories, setCategories] = useState<Array<Category>>([])
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
     const [show, setShow] = useState(false);
-
-    const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (e.target === e.currentTarget) {
-            setShow(false)
-        }
-    }
 
     const generate_rows = (categories: Array<Category>) => {
         return categories?.map((category: Category) => {
@@ -37,7 +33,7 @@ export default function CategoryTable() {
                         {category.create_date}
                     </td>
                     <td>
-                        <button type='button' className='btn btn-sm btn-danger'>
+                        <button type='button' onClick={() => handleEditClick(category)} className='btn btn-sm btn-danger'>
                             <i className="bi bi-pencil-square"></i>
                         </button>
                     </td>
@@ -46,10 +42,15 @@ export default function CategoryTable() {
         })
     }
 
-    const handleClick = () => {
+    const handleBackClick = () => {
         router.push('/panel/')
     };
     const handleAddClick = () => {
+        setShow(true);
+    }
+
+    const handleEditClick = (category: Category) => {
+        setSelectedCategory(category);
         setShow(true);
     }
 
@@ -57,48 +58,27 @@ export default function CategoryTable() {
 
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            const res = await fetch('/api/categories', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            const json: Array<Category> = await res.json();
-            if (res.ok) {
-                console.log("Fetched categories", json)
-                setCategories([...json])
-            } else {
-                console.error("Fetch error")
-            }
-        }
-        fetchCategories();
+        fetchCategories((categories: Array<Category>) => {
+            setCategories(categories)
+        });
     }, [])
 
     const handleCreateFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
         const formData = new FormData(form);
-        const json: any = {}
-        formData.forEach((v, k) => {
-            json[k] = v;
-        })
-
-        const res = await fetch('/api/categories/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(json)
-        });
-        if (res.ok) {
-            const data = await res.json();
-            console.log("created successfully", data)
-            setCategories([...categories, data])
+        if (selectedCategory) {
+            await updateCategory(formData, (data: Category) => {
+                const _categories = categories.map((item, i) => (item.id === data.id ? data : item));
+                setCategories([..._categories])
+            })
         } else {
-            const data = await res.json();
-            console.error("created error", data)
+            await createCategory(formData, (data: Category) => {
+                setCategories([...categories, data])
+            })
         }
+        setShow(false);
+        setSelectedCategory(null)
     }
 
     if (!categories) {
@@ -109,7 +89,7 @@ export default function CategoryTable() {
         <>
 
             <div className='d-flex justify-content-between mb-2'>
-                <button onClick={handleClick} className='btn btn-secondary'>
+                <button onClick={handleBackClick} className='btn btn-secondary'>
                     <i className="bi bi-arrow-left"></i>
                     <span> Back</span>
                 </button>
@@ -136,26 +116,31 @@ export default function CategoryTable() {
                     </tbody>
                 </table>
             </div>
-            <CreateFormModal  show={show} setShow={setShow}>
+            <CreateFormModal handleCloseCallback={() => { setSelectedCategory(null) }} show={show} setShow={setShow}>
                 <form onSubmit={handleCreateFormSubmit}>
                     <div className={styles.modal_header}>
-                        <h2>Add Category</h2>
-                        <button type="button" onClick={() => setShow(false)}>×</button>
+                        <h2>{selectedCategory ? 'Edit Category' : 'Add Category'}</h2>
+                        <button type="button" onClick={() => {
+                            setShow(false)
+                            setSelectedCategory(null)
+                        }}>×</button>
                     </div>
 
                     <div className={styles.modal_body}>
                         <label className="form-label">
                             Title
-                            <input className='form-control w-100' type="text" name="title" required />
+                            <input defaultValue={selectedCategory?.title || ''} className='form-control w-100' type="text" name="title" required />
                         </label>
                         <label>
                             Description:
-                            <textarea className='form-control w-100' name="description" required />
+                            <textarea defaultValue={selectedCategory?.description || ''} className='form-control w-100' name="description" required />
                         </label>
+
+                        <input type="hidden" id="category_id" name="category_id" defaultValue={selectedCategory?.id || ''} />
                     </div>
 
                     <div className={styles.modal_footer}>
-                        <button className='btn btn-primary' type="submit">Add</button>
+                        <button className='btn btn-primary' type="submit">{selectedCategory ? 'Update' : 'Add'}</button>
                         <button className='btn btn-danger' type="button" onClick={() => setShow(false)}>Close</button>
                     </div>
                 </form>
