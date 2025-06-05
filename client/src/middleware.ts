@@ -1,24 +1,28 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const protectedPaths = ['/panel/blog', '/panel/category', '/panel/channel'];
+const panelPaths = ['/panel/blog', '/panel/category', '/panel/channel', '/panel', '/panel/login'];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (protectedPaths.some(path => pathname.startsWith(path))) {
+
+  const isPanelPath = pathname.startsWith('/panel');
+  const isLoginPath = pathname === '/panel/login';
+
+
+  if (isPanelPath) {
     const token = request.cookies.get('jwt')?.value;
-    if (!token) {
-      return NextResponse.redirect(new URL('/panel/login', request.url));
+    if (isLoginPath && token) {
+      return NextResponse.redirect(new URL('/panel/', request.url));
     }
-    try {
-      return NextResponse.next();
-    } catch (err) {
+    if (!isLoginPath && !token) {
       return NextResponse.redirect(new URL('/panel/login', request.url));
     }
   }
+
   return NextResponse.next();
 }
 
-export const config = {
-  matcher: ['/panel/blog', '/panel/category', '/panel/channel'], 
-};
+// export const config = {
+//   matcher: ['/panel((?!/login).*)'],
+// };
