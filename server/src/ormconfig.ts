@@ -5,7 +5,7 @@ import {Blog} from './entity/BlogModel'
 import {Category} from './entity/CategoryModel'
 import {Channel} from './entity/ChannelModel'
 import {Style} from './entity/StyleModel'
-import {Combination} from './entity/CombinationModel'
+import {Combinations} from './entity/CombinationModel'
 dotenv.config();
 
 export const AppDataSource = new DataSource({
@@ -16,7 +16,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME || "",
     username: process.env.DB_USER || "",
     password: process.env.DB_PASSWORD || "",
-    entities: [Blog, Category, Channel, Style, Combination],
+    entities: [Blog, Category, Channel, Style, Combinations],
     migrations: ["/src/migrations/*.ts"],
     synchronize: false
 })

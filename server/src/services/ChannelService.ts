@@ -1,6 +1,7 @@
 import { DataSource, Repository } from "typeorm";
 import { Channel } from "../entity/ChannelModel";
-import { inject, injectable } from 'tsyringe'
+import { inject, injectable, container } from 'tsyringe'
+import { CombinationService } from "./CombinationService";
 
 @injectable()
 export class ChannelService {
@@ -15,16 +16,23 @@ export class ChannelService {
         return await this.ChannelRepo.find();
     }
 
+    async selectAllId() {
+        return await this.ChannelRepo.find({ select: ['id'] })
+    }
+
     async create(data: Partial<Channel>) {
+        const combinationService = container.resolve(CombinationService)
         const _channel = await this.ChannelRepo.findBy({
             channel_value: data.channel_value,
             channel_key: data.channel_key
         })
-        if(_channel?.length){
+        if (_channel?.length) {
             return null
         }
         const channel = this.ChannelRepo.create(data);
-        return await this.ChannelRepo.save(channel);
+        const _saved = await this.ChannelRepo.save(channel);
+        await combinationService.fillCombinations();
+        return _saved
     }
 
 }
