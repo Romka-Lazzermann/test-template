@@ -5,9 +5,15 @@ export async function GET(request: NextRequest) {
   const targetPath = pathname.replace(/^\/api/, '');
   const targetUrl = `${process.env.SERVER_URL}${targetPath}${search}`;
 
+  const token = request.cookies.get('jwt')?.value;
+  const headers = new Headers(request.headers);
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
+  }
+
   const response = await fetch(targetUrl, {
     method: 'GET',
-    headers: request.headers,
+    headers: headers,
   });
 
   const data = await response.text();
@@ -40,11 +46,22 @@ export async function POST(request: NextRequest) {
     body = await request.body;
     _set_headers = false
   }
-  const request_options = _set_headers ? {
+  const token = request.cookies.get('jwt')?.value;
+
+
+
+  const request_options: any = _set_headers ? {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     }
-  } : {}
+  } : {
+    headers: {}
+  }
+
+  if (token) {
+    request_options.headers['Authorization'] = `Bearer ${token}`
+  }
+
   const response = await fetch(targetUrl, {
     method: 'POST',
     body,
@@ -99,11 +116,20 @@ export async function PUT(request: NextRequest) {
     body = await request.body;
     _set_headers = false
   }
-  const request_options = _set_headers ? {
+  
+  const token = request.cookies.get('jwt')?.value;
+
+  const request_options: any = _set_headers ? {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     }
-  } : {}
+  } : {
+    headers: {}
+  }
+
+  if (token) {
+    request_options.headers['Authorization'] = `Bearer ${token}`
+  }
   const response = await fetch(targetUrl, {
     method: 'PUT',
     body,
