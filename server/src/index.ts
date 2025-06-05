@@ -11,6 +11,7 @@ import { createStyleRoutes } from './routes/style'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import './container'
+import { authenticateToken } from './middlewares/authMiddleware'
 dotenv.config()
 
 const app = express()
@@ -24,13 +25,12 @@ Promise.all([AppDataSource.initialize(), UserDbDataSource.initialize()]).then(()
   console.log('Data Source has been initialized!')
   app.use('/assets', express.static('assets'))
   app.use(bodyParser.json())
-  
   app.use('/auth', createAuthRoutes())
-  app.use('/blogs', createBlogRoutes())
-  app.use('/categories', createCategoryRoutes())
-  app.use('/channels', createChannelRoutes())
-  app.use('/styles', createStyleRoutes())
-  
+  app.use('/blogs', authenticateToken, createBlogRoutes())
+  app.use('/categories', authenticateToken, createCategoryRoutes())
+  app.use('/channels', authenticateToken, createChannelRoutes())
+  app.use('/styles', authenticateToken, createStyleRoutes())
+
 
   app.listen(PORT, () => {
     console.log('Server is running on port ', PORT)

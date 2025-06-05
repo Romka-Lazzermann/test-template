@@ -38,7 +38,18 @@ export class UserService {
         }
 
     }
-
+    async findUser(userData: Partial<Users>){
+        const { login, id } = userData;
+        if(login && id){
+            const _user = await this.UserRepo.findOneBy({
+                id,
+                login
+            })
+            return _user
+        }else {
+            return null
+        }
+    }
     async compareUser(userData: Partial<Users>) {
         const { login } = userData;
         const user = await this.UserRepo.findBy({
