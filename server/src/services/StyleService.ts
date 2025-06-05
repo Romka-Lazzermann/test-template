@@ -34,4 +34,17 @@ export class StyleService {
         return saved;
     }
 
+    async update(id: number, data: Partial<Style>){
+        const _style = await this.StyleRepo.findBy({
+            style_key: data.style_key
+        })
+        if (_style?.length) {
+            return null
+        }
+        await this.StyleRepo.update(id, data)
+        return await this.StyleRepo.findOneBy({
+            id: id
+        })
+    }
+
 }

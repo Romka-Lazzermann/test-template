@@ -34,5 +34,22 @@ export const createStyleRoutes = () => {
         }
     });
 
+    router.put("/:id", async (req: Request, res: Response) => {
+        try {
+            const { style_key } = req.body
+            const data = await service.update(Number(req.params.id), { style_key })
+            if (data) {
+                res.json(data)
+            } else {
+                res.status(409).json({ success: 0, error: `This Style is already exists` });
+            }
+        }
+        catch (err) {
+            res.status(400).json({ success: 0, error: `Error while updating style : ${err}` });
+
+        }
+
+    });
+
     return router;
 }

@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import modalStyles from '@/components/index.module.css';
 import CreateFormModal from '@/components/modals/CreateFormModal';
-
+import { fetchStyles, createStyle, updateStyle } from './fetchCalls'
 
 interface Style {
     id: string,
@@ -14,13 +14,8 @@ interface Style {
 export default function StylesTable() {
     const router = useRouter();
     const [styles, setStyles] = useState<Array<Style>>([])
+    const [selectedStyle, setSelectedStyle] = useState<Style | null>(null);
     const [show, setShow] = useState(false);
-
-    const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (e.target === e.currentTarget) {
-            setShow(false)
-        }
-    }
 
     const generate_rows = (styles: Array<Style>) => {
         return styles?.map((style: Style) => {
@@ -33,7 +28,7 @@ export default function StylesTable() {
                         {style.style_key}
                     </td>
                     <td>
-                        <button type='button' className='btn btn-sm btn-danger'>
+                        <button type='button' onClick={() => handleEditClick(style)} className='btn btn-sm btn-danger'>
                             <i className="bi bi-pencil-square"></i>
                         </button>
                     </td>
@@ -48,53 +43,35 @@ export default function StylesTable() {
     const handleAddClick = () => {
         setShow(true);
     }
+    const handleEditClick = (style: Style) => {
+        setSelectedStyle(style);
+        setShow(true);
+    }
 
     const rows = useMemo(() => generate_rows(styles), [styles])
 
-
     useEffect(() => {
-        const fetchStyles = async () => {
-            const res = await fetch('/api/styles', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            const json: Array<Style> = await res.json();
-            if (res.ok) {
-                console.log("Fetched styless", json)
-                setStyles([...json])
-            } else {
-                console.error("Fetch error")
-            }
-        }
-        fetchStyles();
+        fetchStyles((styles: Array<Style>) => {
+            setStyles([...styles])
+        });
     }, [])
 
     const handleCreateFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
         const formData = new FormData(form);
-        const json: any = {}
-        formData.forEach((v, k) => {
-            json[k] = v;
-        })
-
-        const res = await fetch('/api/styles/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(json)
-        });
-        if (res.ok) {
-            const data = await res.json();
-            console.log("created successfully", data)
-            setStyles([...styles, data])
+        if (selectedStyle) {
+            updateStyle(formData, (data: Style) => {
+                const _categories = styles.map((item, i) => (item.id === data.id ? data : item));
+                setStyles([..._categories])
+            })
         } else {
-            const data = await res.json();
-            console.error("created error", data)
+            createStyle(formData, (data: Style) => {
+                setStyles([...styles, data])
+            })
         }
+        setShow(false);
+        setSelectedStyle(null)
     }
 
     if (!styles) {
@@ -116,7 +93,7 @@ export default function StylesTable() {
                 </button>
 
             </div>
-            <h2 className="mt-4">Category</h2>
+            <h2 className="mt-4">Style</h2>
             <div className='table-responsive'>
                 <table className={`${modalStyles.table_rounded} table table-dark`}>
                     <thead>
@@ -132,23 +109,31 @@ export default function StylesTable() {
                 </table>
             </div>
 
-            <CreateFormModal show={show} setShow={setShow}>
+            <CreateFormModal handleCloseCallback={() => { setSelectedStyle(null) }} show={show} setShow={setShow}>
                 <form onSubmit={handleCreateFormSubmit}>
                     <div className={modalStyles.modal_header}>
-                        <h2>Add Channel</h2>
-                        <button type="button" onClick={() => setShow(false)}>×</button>
+                        <h2>{selectedStyle ? 'Edit Style' : 'Add Style'}</h2>
+                        <button type="button" onClick={() => {
+                            setShow(false)
+                            setSelectedStyle(null)
+                        }}>×</button>
                     </div>
 
                     <div className={modalStyles.modal_body}>
                         <label className="form-label">
                             Style Key
-                            <input className='form-control w-100' type="text" name="style_key" required />
+                            <input className='form-control w-100' type="text" name="style_key" defaultValue={selectedStyle?.style_key || ''} required />
+                            <input type="hidden" id="style_id" name="style_id" defaultValue={selectedStyle?.id || ''} />
+
                         </label>
                     </div>
 
                     <div className={modalStyles.modal_footer}>
-                        <button className='btn btn-primary' type="submit">Add</button>
-                        <button className='btn btn-danger' type="button" onClick={() => setShow(false)}>Close</button>
+                        <button className='btn btn-primary' type="submit">{selectedStyle ? 'Edit' : 'Add'}</button>
+                        <button className='btn btn-danger' type="button" onClick={() => {
+                            setShow(false)
+                            setSelectedStyle(null)
+                        }}>Close</button>
                     </div>
                 </form>
             </CreateFormModal>
