@@ -57,8 +57,16 @@ export const createCategoryRoutes = () => {
   });
 
   router.put("/:id", async (req: Request, res: Response) => {
-    const data = await service.update(Number(req.params.id), req.body);
-    res.json(data);
+    const {title, description} = req.body
+    const data = await service.update(Number(req.params.id), {title, description});
+    const prepared_data = {
+          title: data?.title,
+          id: data?.id,
+          description: data?.description,
+          status: data?.status ? "On" : "Off",
+          create_date: data?.time_create
+        }
+    res.json(prepared_data);
   });
 
   router.delete("/:id", async (req: Request, res: Response) => {
