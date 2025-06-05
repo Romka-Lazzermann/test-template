@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from '@/components/index.module.css';
 import CreateFormModal from '@/components/modals/CreateFormModal';
+import { fetchChannels, createChannel, updateChannel } from './fetchCalls';
 
 interface Channel {
     id: string,
@@ -14,13 +15,10 @@ interface Channel {
 export default function ChannelTable() {
     const router = useRouter();
     const [channels, setChannels] = useState<Array<Channel>>([])
+    const [selectedChannel, setSelectedChannel] = useState<Channel | null>(null);
+
     const [show, setShow] = useState(false);
 
-    const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (e.target === e.currentTarget) {
-            setShow(false)
-        }
-    }
 
     const generate_rows = (channels: Array<Channel>) => {
         return channels?.map((channel: Channel) => {
@@ -36,7 +34,7 @@ export default function ChannelTable() {
                         {channel.channel_value}
                     </td>
                     <td>
-                        <button type='button' className='btn btn-sm btn-danger'>
+                        <button type='button' onClick={() => handleEditClick(channel)} className='btn btn-sm btn-danger'>
                             <i className="bi bi-pencil-square"></i>
                         </button>
                     </td>
@@ -52,52 +50,37 @@ export default function ChannelTable() {
         setShow(true);
     }
 
+    const handleEditClick = (Channel: Channel) => {
+        setSelectedChannel(Channel);
+        setShow(true);
+    }
+
     const rows = useMemo(() => generate_rows(channels), [channels])
 
 
     useEffect(() => {
-        const fetchChannels = async () => {
-            const res = await fetch('/api/channels', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            const json: Array<Channel> = await res.json();
-            if (res.ok) {
-                console.log("Fetched channels", json)
-                setChannels([...json])
-            } else {
-                console.error("Fetch error")
-            }
-        }
-        fetchChannels();
+        fetchChannels((channels: Array<Channel>) => {
+            setChannels(channels)
+        });
     }, [])
+
 
     const handleCreateFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const form = e.currentTarget;
         const formData = new FormData(form);
-        const json: any = {}
-        formData.forEach((v, k) => {
-            json[k] = v;
-        })
-
-        const res = await fetch('/api/channels/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(json)
-        });
-        if (res.ok) {
-            const data = await res.json();
-            console.log("created successfully", data)
-            setChannels([...channels, data])
+        if (selectedChannel) {
+            await updateChannel(formData, (data: Channel) => {
+                const _channels = channels.map((item, i) => (item.id === data.id ? data : item));
+                setChannels([..._channels])
+            })
         } else {
-            const data = await res.json();
-            console.error("created error", data)
+            await createChannel(formData, (data: Channel) => {
+                setChannels([...channels, data])
+            })
         }
+        setShow(false);
+        setSelectedChannel(null)
     }
 
     if (!channels) {
@@ -146,12 +129,14 @@ export default function ChannelTable() {
                     <div className={styles.modal_body}>
                         <label className="form-label">
                             Channel ID
-                            <input className='form-control w-100' type="text" name="channel_key" required />
+                            <input className='form-control w-100' type="text" defaultValue={selectedChannel?.channel_key || ''} name="channel_key" required />
                         </label>
                         <label>
                             Channel Name:
-                            <input className='form-control w-100' name="channel_value" required />
+                            <input className='form-control w-100' name="channel_value" defaultValue={selectedChannel?.channel_value || ''} required />
                         </label>
+
+                        <input type="hidden" id="channel_id" name="channel_id" defaultValue={selectedChannel?.id || ''} />
                     </div>
 
                     <div className={styles.modal_footer}>
