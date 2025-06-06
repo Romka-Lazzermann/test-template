@@ -75,5 +75,24 @@ export const createLinkRoutes = () => {
         }
     })
 
+    router.get('/link/:link_name', async (req: Request, res: Response) => {
+        try{
+            const _l = req.params.link_name.split('-')
+            const id = Number(_l[0])
+            const name = _l[1]
+            const link = await linkService.findByUrl({
+                id,
+                name
+            })
+            if(link.ok){
+                res.status(201).json({status: "ok", data: link})
+            }else {
+                res.status(400).json({error: link.error})
+            }
+        }catch(err){
+            res.status(400).json({ error: "Bad request"})
+        }
+    })
+
     return router
 }

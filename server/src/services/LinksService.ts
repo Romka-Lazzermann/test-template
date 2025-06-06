@@ -116,8 +116,6 @@ export class LinksService {
             ]
             let _l = null
 
-            let find_link = null
-
             if (data.adw_id) {
                 _l = await this.LinksRepo.findOneBy({
                     adw_id: data.adw_id
@@ -175,6 +173,21 @@ export class LinksService {
         }
     }
 
+    async findByUrl(data: Partial<any>){
+        const _l = await this.LinksRepo.findOneBy({
+            name: data?.name,
+            id: data?.id,
+        })
+        if(!_l){
+            return {ok: 0, error: "Could not found this link"}
+        }
+        const prepared_data = {
+            title: _l?.title_white,
+            description: _l?.description_white
+        }
+
+        return {ok: 1, data: prepared_data}
+    }
 
     async addGeneratedContent(link_id: number, prompt_payload: Partial<any>) {
         const cut_parts = this.cutLinkParts(prompt_payload?.text || '')
