@@ -1,96 +1,69 @@
-import Image from "next/image";
-import styles from "./page.module.css";
 
+import { getFeaturedArticle, getRecentArticles } from '@/lib/articles';
+import ArticleCard from '@/components/article-card';
+import CategorySection from '@/components/category-section';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
-export default function Home() {
+export default function HomePage() {
+  const featuredArticle = getFeaturedArticle(); 
+  const latestArticles = getRecentArticles(8, featuredArticle?.slug).slice(0,8); 
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="space-y-12 sm:space-y-16">
+      {/* New Featured Article Section */}
+      {featuredArticle && (
+        <section aria-labelledby="featured-article-title" className="relative w-full h-[60vh] md:h-[70vh] rounded-lg overflow-hidden shadow-xl group">
+          <Image
+            src={featuredArticle.imageUrl}
+            alt={featuredArticle.title}
+            layout="fill"
+            objectFit="cover"
+            priority
+            className="transition-transform duration-500 ease-in-out group-hover:scale-105"
+            data-ai-hint={featuredArticle.imageHint || featuredArticle.category.toLowerCase()}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
+          <div className="absolute inset-0 flex flex-col justify-center p-6 sm:p-10 md:p-16">
+            <div className="max-w-xl">
+              <h1 id="featured-article-title" className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+                {featuredArticle.title}
+              </h1>
+              <p className="text-base sm:text-lg text-gray-200 mb-6 line-clamp-3 sm:line-clamp-4">
+                {featuredArticle.excerpt}
+              </p>
+              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full px-8 py-3 text-base font-semibold transition-transform group-hover:scale-105">
+                <Link href={`/articles/${featuredArticle.slug}`}>
+                  Read more
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </section>
+      )}
+      
+      {/* Latest Articles Section - Grid */}
+      {latestArticles.length > 0 && (
+        <section aria-labelledby="latest-articles-heading" className="mt-12 sm:mt-16">
+          <h2 id="latest-articles-heading" className="text-2xl sm:text-3xl font-semibold mb-6 text-foreground text-left">
+            Latest Articles
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {latestArticles.map((article) => (
+              <ArticleCard key={article.slug} article={article} variant="default" />
+            ))}
+          </div>
+        </section>
+      )}
+      
+      {/* Category Section */}
+      <CategorySection />
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
+
+export const revalidate = 3600; // Revalidate every hour if using ISR
