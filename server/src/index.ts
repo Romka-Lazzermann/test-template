@@ -2,9 +2,9 @@ import 'reflect-metadata'
 import { container } from 'tsyringe'
 import express from 'express'
 import { AppDataSource } from './ormconfig'
-import {UserDbDataSource} from './dbusersconfig'
-import {createBlogRoutes} from './routes/blog'
-import {createAuthRoutes} from './routes/auth'
+import { UserDbDataSource } from './dbusersconfig'
+import { createBlogRoutes } from './routes/blog'
+import { createAuthRoutes } from './routes/auth'
 import { createCategoryRoutes } from './routes/category'
 import { createChannelRoutes } from './routes/channel'
 import { createStyleRoutes } from './routes/style'
@@ -25,11 +25,14 @@ Promise.all([AppDataSource.initialize(), UserDbDataSource.initialize()]).then(()
   console.log('Data Source has been initialized!')
   app.use('/assets', express.static('assets'))
   app.use(bodyParser.json())
-  app.use('/auth', createAuthRoutes())
-  app.use('/blogs', authenticateToken, createBlogRoutes())
-  app.use('/categories', authenticateToken, createCategoryRoutes())
-  app.use('/channels', authenticateToken, createChannelRoutes())
-  app.use('/styles', authenticateToken, createStyleRoutes())
+  app.use('/api', express.Router()
+    .use('/auth', createAuthRoutes())
+    .use('/blogs', authenticateToken, createBlogRoutes())
+    .use('/categories', authenticateToken, createCategoryRoutes())
+    .use('/channels', authenticateToken, createChannelRoutes())
+    .use('/styles', authenticateToken, createStyleRoutes())
+  )
+
 
 
   app.listen(PORT, () => {
