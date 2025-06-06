@@ -6,6 +6,7 @@ import { ChannelService } from './services/ChannelService'
 import { StyleService } from './services/StyleService'
 import { CombinationService } from './services/CombinationService'
 import { LinksService } from './services/LinksService'
+import { AIPromtService } from './services/AIPromtService'
 
 
 
@@ -15,4 +16,5 @@ container.register(CategoryService, { useClass: CategoryService });
 container.register(ChannelService, { useClass: ChannelService });
 container.register(StyleService, { useClass: StyleService });
 container.register(CombinationService, { useClass: CombinationService })
-container.register(LinksService, {useClass: LinksService})
+container.register(LinksService, { useClass: LinksService })
+container.register(AIPromtService, { useClass: AIPromtService })

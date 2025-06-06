@@ -85,8 +85,8 @@ export class Links {
     @Column({ type: 'int', default: 0 })
     ubi_user_id!: number;
 
-    @Column({ type: 'int', default: 0 })
-    campaign_global_id!: number;
+    @Column({ type: 'varchar', length: 100, nullable: true })
+    campaign_global_id!: string;
 
     @Column({ type: 'varchar', length: 100, nullable: true })
     campaign_global_name!: string | null;

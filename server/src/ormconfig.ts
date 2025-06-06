@@ -6,6 +6,7 @@ import {Category} from './entity/CategoryModel'
 import {Channel} from './entity/ChannelModel'
 import {Style} from './entity/StyleModel'
 import {Combinations} from './entity/CombinationModel'
+import { Links } from './entity/LinkModel'
 dotenv.config();
 
 export const AppDataSource = new DataSource({
@@ -16,7 +17,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME || "",
     username: process.env.DB_USER || "",
     password: process.env.DB_PASSWORD || "",
-    entities: [Blog, Category, Channel, Style, Combinations],
+    entities: [Blog, Category, Channel, Style, Combinations, Links],
     migrations: ["/src/migrations/*.ts"],
     synchronize: false
 })

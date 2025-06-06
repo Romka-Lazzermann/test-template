@@ -8,6 +8,7 @@ import { createAuthRoutes } from './routes/auth'
 import { createCategoryRoutes } from './routes/category'
 import { createChannelRoutes } from './routes/channel'
 import { createStyleRoutes } from './routes/style'
+import { createLinkRoutes } from './routes/links'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import './container'
@@ -26,6 +27,7 @@ Promise.all([AppDataSource.initialize(), UserDbDataSource.initialize()]).then(()
   app.use('/assets', express.static('assets'))
   app.use(bodyParser.json())
   app.use('/api', express.Router()
+    .use('/', createLinkRoutes())
     .use('/auth', createAuthRoutes())
     .use('/blogs', authenticateToken, createBlogRoutes())
     .use('/categories', authenticateToken, createCategoryRoutes())

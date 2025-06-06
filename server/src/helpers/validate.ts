@@ -5,7 +5,7 @@ export function getRequestType(body: any): 'adw' | 'campaign' | 'unknown' {
 }
 
 export function validateDynamicLinksRequest(body: any): { type: string, success: boolean, missing: string[] } {
-    const baseRequiredFields = ['channel_offer', 'title', 'keywords', 'image'];
+    const baseRequiredFields = ['channel_offer', 'title', 'keywords', 'img'];
 
     const adwRequired = ['adw_id'];
     const campaignRequired = ['campaign_global_id', 'team_id', 'team_user_id', 'ubi_user_id'];
