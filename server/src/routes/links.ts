@@ -38,7 +38,7 @@ export const createLinkRoutes = () => {
             if (valid_res.success) {
                 const _created = await linkService.create(body, valid_res.type)
                 if (_created) {
-                    generateLinkContent(_created.id, _created.title);
+                    generateLinkContent(_created?.id || 0, _created.title);
                     res.status(201).json({ status: "ok", url: _created.link })
                 } else {
                     res.status(400).json({ success: 0, error: `Creating fail` });
