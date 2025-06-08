@@ -4,13 +4,16 @@ import { inject, injectable, container } from 'tsyringe'
 import slugify from "slugify";
 import path from "path";
 import fs from 'fs';
+import { LinksMultilang } from "../entity/LinksMultilang";
 
 @injectable()
 export class LinksService {
     protected LinksRepo: Repository<Links>;
+    protected LinksMultilangRepo: Repository<LinksMultilang>
 
     constructor(@inject("AppDataSource") private datasource: DataSource) {
         this.LinksRepo = datasource.getRepository(Links);
+        this.LinksMultilangRepo = datasource.getRepository(LinksMultilang);
     }
 
     async create(data: Partial<Links>, request_type: string) {
@@ -56,10 +59,7 @@ export class LinksService {
                     img: data?.img
                 }
                 find_link = await this.LinksRepo.findOneBy({
-                    campaign_global_id: data?.campaign_global_id,
-                    team_id: data?.team_id,
-                    team_user_id: data?.team_user_id,
-                    ubi_user_id: data?.ubi_user_id,
+                    campaign_global_id: data?.campaign_global_id
                 })
                 if (find_link) {
                     return { success: 0, error: "Link with this credentials is already exists" }
@@ -173,25 +173,84 @@ export class LinksService {
         }
     }
 
-    async findByUrl(data: Partial<any>){
-        const _l = await this.LinksRepo.findOneBy({
-            name: data?.name,
-            id: data?.id,
-        })
-        if(!_l){
-            return {ok: 0, error: "Could not found this link"}
-        }
-        const prepared_data = {
-            title: _l?.title_white,
-            description: _l?.description_white
-        }
+    async findByUrl(data: Partial<any>, language?: string | '') {
+        try {
+            const _l = await this.LinksRepo.findOneBy({
+                name: data?.name,
+                id: data?.id,
+            })
+            if (!_l) {
+                return { ok: 0, error: "Could not found this link" }
+            }
+            if (!_l.multilang) {
+                return {
+                    ok: 1, data: {
+                        title: _l?.title_white,
+                        description: _l?.description_white,
+                        language: _l?.lang
+                    }
+                }
+            }
 
-        return {ok: 1, data: prepared_data}
+            if (_l.lang === language || language === '') { }
+            else {
+                const _multi_l = await this.LinksMultilangRepo.findOne({
+                    where: {
+                        link_id: _l.id,
+                        lang: language
+                    }
+                })
+                if (_multi_l) {
+                    return {
+                        ok: 1, data: {
+                            title: _multi_l?.status ? _multi_l?.title : _l.title,
+                            description: _multi_l?.status ? _multi_l?.description : _l.description,
+                            language: _multi_l?.status ? _multi_l?.lang : _l.lang
+                        }
+                    }
+                } else {
+                    // return json to translate
+                    const link_multilang = await this.LinksMultilangRepo.create({
+                        status: 0,
+                        link_id: _l.id,
+                        lang: language
+                    })
+                    const saved = await this.LinksMultilangRepo.save(link_multilang);
+                    console.log("link_multilang", link_multilang, saved)
+                    return {
+                        translate: 1, lang: language, id: _l.id,
+                        data: {
+                            title: _l?.title_white,
+                            description: _l?.description_white,
+                            language: _l?.lang
+                        },
+                        payload: {
+                            title_ai: _l.title_white,
+                            description_ai: _l.description_white,
+                            sub_description_ai: _l.sub_description,
+                            keywords_ai: _l.keywords,
+                            from_lang: _l.lang,
+                            to_lang: language
+                        }
+                    }
+                }
+            }
+
+            return {
+                ok: 1, data: {
+                    title: _l?.title_white,
+                    description: _l?.description_white,
+                    language: _l?.lang
+                }
+            }
+        }
+        catch (err) {
+            return { ok: 0, error: err }
+        }
     }
 
     async addGeneratedContent(link_id: number, prompt_payload: Partial<any>) {
         const cut_parts = this.cutLinkParts(prompt_payload?.text || '')
-        console.log("cut_parts", cut_parts)
         try {
             const _l = await this.LinksRepo.findOneBy({
                 id: link_id
@@ -218,6 +277,33 @@ export class LinksService {
         }
     }
 
+    async addTraslatedLink(id: number, prompt_payload: any, lang: string) {
+        const cut_parts = this.cutLinkParts(prompt_payload?.text || '')
+        try {
+            const _l = await this.LinksMultilangRepo.findOneBy({
+                link_id: id,
+                lang: lang
+            })
+
+            if (_l) {
+                _l.title =  cut_parts['title'] || ''
+                _l.description =  cut_parts['description'] || ''
+                _l.sub_description =  cut_parts['description'] || ''
+                _l.keywords =  cut_parts['keywords'] || ''
+                _l.status =  1
+                
+                const saved = await this.LinksMultilangRepo.save(_l)
+                 return { ok: 1, message: "Generate content successfully" }
+            }else {
+                return { ok: 0, error: "This multilanguage link does not exists" }
+            }
+
+        } catch (err) {
+            console.error("Error while create lang link", err)
+            return { ok: 0, error: err }
+        }
+
+    }
 
     private cutLinkParts(text: string) {
         let match;

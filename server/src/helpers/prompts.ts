@@ -98,21 +98,22 @@ export function getGenerateLinksContentPrompt(title: string) {
 }
 
 export function getTraslateTheBlog(payload: Partial<any>) {
+    const {title_ai, description_ai, sub_description_ai, keywords_ai, from_lang, to_lang} = payload;
     return ` #title_start#
-    {$title_ai}
+    ${title_ai}
     #title_end#
 
     #description_start#
-    {$description_ai}
+    ${description_ai}
     #description_end#
 
     #sub_description_start#
-    {$sub_description_ai}
+    ${sub_description_ai}
     #sub_description_end#
 
     #keywords_start#
-    {$keywords_ai}
+    ${keywords_ai}
     #keywords_end#
 
-    You need to translate from {$from_lang} to {$to_lang}, strictly following the template I sent you #title_start##title_end# #description_start##description_end# #sub_description_start##sub_description_end# #keywords_start##keywords_end#`
+    You need to translate from ${from_lang} to ${to_lang}, strictly following the template I sent you #title_start##title_end# #description_start##description_end# #sub_description_start##sub_description_end# #keywords_start##keywords_end#`
 }
