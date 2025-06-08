@@ -1,4 +1,4 @@
-import { DataSource, Repository } from "typeorm";
+import { DataSource, Not, Repository } from "typeorm";
 import { Style } from "../entity/StyleModel";
 import { inject, injectable, container } from 'tsyringe'
 import { CombinationService } from "./CombinationService";
@@ -35,10 +35,14 @@ export class StyleService {
     }
 
     async update(id: number, data: Partial<Style>){
-        const _style = await this.StyleRepo.findBy({
-            style_key: data.style_key
+        const _style = await this.StyleRepo.findOne({
+            where: {
+                style_key: data.style_key,
+                id: Not(id)
+            }
+            
         })
-        if (_style?.length) {
+        if (_style) {
             return null
         }
         await this.StyleRepo.update(id, data)

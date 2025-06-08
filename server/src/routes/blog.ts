@@ -6,6 +6,7 @@ import { MulterRequest } from '../interfaces'
 import fs from 'fs';
 import path from 'path';
 import { container } from 'tsyringe'
+import {format_seconds_timestamp} from '../helpers/format'
 
 const router = Router();
 
@@ -23,7 +24,7 @@ export const createBlogRoutes = () => {
         title: blog.title,
         description: blog.description,
         category: blog.category_id.title,
-        create_date: blog.time_create,
+        create_date: format_seconds_timestamp(blog.time_create, 'YYYY-MM-DD HH:mm:ss'),
         keywords: JSON.parse(blog.keywords),
         sub_description: blog.sub_description,
         category_id: blog.category_id.id
@@ -52,7 +53,7 @@ export const createBlogRoutes = () => {
         title: blogs.title,
         description: blogs.description,
         category: blogs.category_id.title,
-        create_date: blogs.time_create,
+        create_date: format_seconds_timestamp(blogs.time_create, 'YYYY-MM-DD HH:mm:ss'),
         keywords: JSON.parse(blogs.keywords),
         sub_description: blogs.sub_description,
         category_id: blogs.category_id.id
@@ -85,7 +86,7 @@ export const createBlogRoutes = () => {
         title: updated.title,
         description: updated.description,
         category: updated.category_id.title,
-        create_date: updated.time_create,
+        create_date: format_seconds_timestamp(updated.time_create, 'YYYY-MM-DD HH:mm:ss'),
         keywords: JSON.parse(updated.keywords),
         sub_description: updated.sub_description,
         category_id: updated.category_id.id

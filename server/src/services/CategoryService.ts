@@ -1,4 +1,4 @@
-import { DataSource, Repository } from "typeorm";
+import { DataSource, Not, Repository } from "typeorm";
 import { Category } from "../entity/CategoryModel";
 import { inject, injectable } from 'tsyringe'
 
@@ -37,10 +37,13 @@ export class CategoryService {
 
   async update(id: number, data: Partial<Category>) {
     const name = data?.title?.toLowerCase();
-    const _category = await this.CategoryRepo.findBy({
-      name
+    const _category = await this.CategoryRepo.findOne({
+      where: {
+        name: name,
+        id: Not(id)
+      }
     })
-    if (_category?.length) {
+    if (_category) {
       return null
     }
     await this.CategoryRepo.update(id, data);

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { CategoryService } from "../services/CategoryService";
 import { Request, Response } from 'express';
 import { container } from "tsyringe";
+import {format_seconds_timestamp} from '../helpers/format'
 
 export const createCategoryRoutes = () => {
   const service = container.resolve(CategoryService);
@@ -16,7 +17,7 @@ export const createCategoryRoutes = () => {
         id: category.id,
         description: category.description,
         status: category.status ? "On" : "Off",
-        create_date: category.time_create
+        create_date: format_seconds_timestamp(category.time_create, 'YYYY-MM-DD HH:mm:ss'), 
       }
     })
     res.json(prepared_data);
@@ -40,7 +41,7 @@ export const createCategoryRoutes = () => {
           id: data.id,
           description: data.description,
           status: data.status ? "On" : "Off",
-          create_date: data.time_create
+          create_date: format_seconds_timestamp(data.time_create, 'YYYY-MM-DD HH:mm:ss'), 
         }
 
 
@@ -66,7 +67,7 @@ export const createCategoryRoutes = () => {
           id: data?.id,
           description: data?.description,
           status: data?.status ? "On" : "Off",
-          create_date: data?.time_create
+          create_date:  format_seconds_timestamp(data.time_create, 'YYYY-MM-DD HH:mm:ss'), 
         }
         res.json(prepared_data);
       } else {
