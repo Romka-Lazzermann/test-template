@@ -74,7 +74,7 @@ export class Links {
     channel_id!: number
 
     @Column({ type: "varchar", length: 100, nullable: true })
-    channel_offer!: number | null
+    channel_offer!: string | null
 
     @Column({ type: "int", width: 11, default: 0 })
     team_id!: number

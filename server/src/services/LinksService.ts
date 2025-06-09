@@ -99,7 +99,7 @@ export class LinksService {
         }
         catch (err) {
             console.error("Error while creating a link", err)
-            return {ok: 0, error: err}
+            return { ok: 0, error: err }
         }
 
     }
@@ -184,10 +184,10 @@ export class LinksService {
             }
             if (!_l.multilang) {
                 return {
-                    ok: 1, data: {
+                    ok: 1, lang: _l?.lang, data: {
                         title: _l?.title_white,
                         description: _l?.description_white,
-                        language: _l?.lang
+                        lang: _l?.lang
                     }
                 }
             }
@@ -202,10 +202,11 @@ export class LinksService {
                 })
                 if (_multi_l) {
                     return {
-                        ok: 1, data: {
+                        ok: 1, lang: language, data: {
+                            id: _l.id,
                             title: _multi_l?.status ? _multi_l?.title : _l.title,
                             description: _multi_l?.status ? _multi_l?.description : _l.description,
-                            language: _multi_l?.status ? _multi_l?.lang : _l.lang
+                            lang: _multi_l?.status ? _multi_l?.lang : _l.lang
                         }
                     }
                 } else {
@@ -216,10 +217,10 @@ export class LinksService {
                         lang: language
                     })
                     const saved = await this.LinksMultilangRepo.save(link_multilang);
-                    console.log("link_multilang", link_multilang, saved)
                     return {
                         translate: 1, lang: language, id: _l.id,
                         data: {
+                            id: _l?.id,
                             title: _l?.title_white,
                             description: _l?.description_white,
                             language: _l?.lang
@@ -237,15 +238,25 @@ export class LinksService {
             }
 
             return {
-                ok: 1, data: {
+                ok: 1, lang: language, data: {
+                    id: _l?.id,
                     title: _l?.title_white,
                     description: _l?.description_white,
-                    language: _l?.lang
+                    lang: _l?.lang
                 }
             }
         }
         catch (err) {
             return { ok: 0, error: err }
+        }
+    }
+
+    async findByID(link_id: number) {
+        try {
+            const link = await this.LinksRepo.findOne({ where: {id: link_id} })
+            return {ok: 1, link}
+        } catch (error) {
+            return { ok: 0, error: error }
         }
     }
 
@@ -286,15 +297,15 @@ export class LinksService {
             })
 
             if (_l) {
-                _l.title =  cut_parts['title'] || ''
-                _l.description =  cut_parts['description'] || ''
-                _l.sub_description =  cut_parts['description'] || ''
-                _l.keywords =  cut_parts['keywords'] || ''
-                _l.status =  1
-                
+                _l.title = cut_parts['title'] || ''
+                _l.description = cut_parts['description'] || ''
+                _l.sub_description = cut_parts['description'] || ''
+                _l.keywords = cut_parts['keywords'] || ''
+                _l.status = 1
+
                 const saved = await this.LinksMultilangRepo.save(_l)
-                 return { ok: 1, message: "Generate content successfully" }
-            }else {
+                return { ok: 1, message: "Generate content successfully" }
+            } else {
                 return { ok: 0, error: "This multilanguage link does not exists" }
             }
 

@@ -17,7 +17,7 @@ export class StyleService {
     }
 
     async selectAllId() {
-        return await this.StyleRepo.find({ select: ['id'] });
+        return await this.StyleRepo.find({ select: ['style_key'] });
     }
 
     async create(data: Partial<Style>) {

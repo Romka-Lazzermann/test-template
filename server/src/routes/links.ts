@@ -5,6 +5,7 @@ import { upload } from '../middlewares/uploadMiddleware';
 import path from "path";
 import fs from 'fs'
 import { LinksService } from "../services/LinksService";
+import { ImpressionService } from "../services/ImpressionService"
 import { validateDynamicLinksRequest } from '../helpers/validate'
 import PQueue from 'p-queue';
 import { AIPromtService } from "../services/AIPromtService";
@@ -40,7 +41,7 @@ export const createLinkRoutes = () => {
                     const gemini = container.resolve(AIPromtService);
                     const content = await gemini.translateLinkContent(payload);
                     const linkService = container.resolve(LinksService);
-                    await linkService.addTraslatedLink(linkId, content, payload?.to_lang); 
+                    await linkService.addTraslatedLink(linkId, content, payload?.to_lang);
                 },
                 {
                     retries: 3,
@@ -102,23 +103,56 @@ export const createLinkRoutes = () => {
             res.status(400).json({ success: 0, error: `Error while update the link` });
         }
     })
-
-    router.get('/link/:link_name', async (req: Request, res: Response) => {
+    router.get('/link/get_language/:link_name', async (req: Request, res: Response) => {
         try {
-            const lang :any = req.query?.lang || ''
+            const lang: any = req.query?.lang || ''
             const _l = req.params.link_name.split('-')
             const id = Number(_l[0])
             const name = _l[1]
             const link = await linkService.findByUrl({
                 id,
                 name
-            }, lang) // test
+            }, lang) 
+
             if (link?.translate) {
                 translateLinkContent(link?.payload, link.id)
-                res.status(201).json({ ok: 1, data: link.data })
+                res.status(201).json({ ok: 1, lang: link.lang })
             }
             else if (link?.ok) {
-                res.status(201).json({ ok: 1, data: link.data })
+                res.status(201).json({ ok: 1, lang: link.lang })
+            } else {
+                res.status(400).json({ error: link.error })
+            }
+        } catch (err) {
+            res.status(400).json({ error: "Bad request", err })
+        }
+    })
+    router.get('/link/:link_name', async (req: Request, res: Response) => {
+        try {
+            const lang: any = req.query?.lang || ''
+            const campaignid: any = req.query?.campaignid || '-'
+            const fbclid: any = req.query?.fbclid || ''
+            const ttclid: any = req.query?.ttclid || ''
+
+            const _l = req.params.link_name.split('-')
+            const id = Number(_l[0])
+            const name = _l[1]
+            // console.log("req.params", req.params, { ...req.query })
+
+            const link = await linkService.findByUrl({
+                id,
+                name
+            }, lang)
+
+            const impressionService = container.resolve(ImpressionService);
+            const impression = await impressionService.create(link.data?.id || 0, campaignid, fbclid, ttclid)
+
+            if (link?.translate) {
+                translateLinkContent(link?.payload, link.id)
+                res.status(201).json({ ok: 1, data: {...link.data, impression_id: impression.id } })
+            }
+            else if (link?.ok) {
+                res.status(201).json({ ok: 1, data: {...link.data, impression_id: impression.id} })
             } else {
                 res.status(400).json({ error: link.error })
             }

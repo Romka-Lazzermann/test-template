@@ -29,8 +29,8 @@ export class ChannelService {
         if (_channel?.length) {
             return null
         }
-        const channel = this.ChannelRepo.create(data);
-        const _saved = await this.ChannelRepo.save(channel);
+        const channel = this.ChannelRepo.create({...data});
+        const _saved = await this.ChannelRepo.save({channel_key: channel.channel_key, channel_value: channel.channel_value});
         await combinationService.fillCombinations();
         return _saved
     }
