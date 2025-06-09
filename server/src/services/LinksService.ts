@@ -44,7 +44,7 @@ export class LinksService {
                     adw_id: data?.adw_id
                 })
                 if (find_link) {
-                    return { success: 0, error: "Link with this adw id is already existed" }
+                    return { ok: 0, error: "Link with this adw id is already existed" }
                 }
             } else if (request_type === 'campaign') {
                 // required fields
@@ -62,10 +62,10 @@ export class LinksService {
                     campaign_global_id: data?.campaign_global_id
                 })
                 if (find_link) {
-                    return { success: 0, error: "Link with this credentials is already exists" }
+                    return { ok: 0, error: "Link with this credentials is already exists" }
                 }
             } else {
-                return { success: 0, error: "Unknown type of link" };
+                return { ok: 0, error: "Unknown type of link" };
             }
 
             prepared_data = {
@@ -79,7 +79,7 @@ export class LinksService {
                 strict: true
             })
             prepared_data.name = name;
-            prepared_data.domain = 'example.com'
+            prepared_data.domain = process.env.DOMAIN
             prepared_data.title_white = ''
             prepared_data.description = ''
             prepared_data.description_white = ''
@@ -95,11 +95,11 @@ export class LinksService {
 
             const urlParam = new URLSearchParams({ creative: prepared_data?.title || '' }).toString();
             const generated_link = `https://${_l.domain}/blog/${_l.id}-${_l.name}?${urlParam}`;
-            return { success: 1, link: generated_link, id: _l.id, title: _l.title }
+            return { ok: 1, link: generated_link, id: _l.id, title: _l.title }
         }
         catch (err) {
             console.error("Error while creating a link", err)
-            return null
+            return {ok: 0, error: err}
         }
 
     }

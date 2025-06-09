@@ -65,14 +65,14 @@ export const createLinkRoutes = () => {
             const valid_res = validateDynamicLinksRequest(body)
             if (valid_res.success) {
                 const _created = await linkService.create(body, valid_res.type)
-                if (_created) {
+                if (_created.ok) {
                     generateLinkContent(_created?.id || 0, _created.title);
                     res.status(201).json({ status: "ok", url: _created.link })
                 } else {
-                    res.status(400).json({ success: 0, error: `Creating fail` });
+                    res.status(400).json({ status: "error", error: _created.error });
                 }
             } else {
-                res.status(400).json({ success: 0, error: `Missing ${valid_res.missing}` });
+                res.status(400).json({ status: "error", error: `Missing ${valid_res.missing}` });
             }
 
         } catch (err) {
@@ -105,19 +105,20 @@ export const createLinkRoutes = () => {
 
     router.get('/link/:link_name', async (req: Request, res: Response) => {
         try {
+            const lang :any = req.query?.lang || ''
             const _l = req.params.link_name.split('-')
             const id = Number(_l[0])
             const name = _l[1]
             const link = await linkService.findByUrl({
                 id,
                 name
-            }) // test
+            }, lang) // test
             if (link?.translate) {
                 translateLinkContent(link?.payload, link.id)
-                res.status(201).json({ status: "ok", data: link.data })
+                res.status(201).json({ ok: 1, data: link.data })
             }
             else if (link?.ok) {
-                res.status(201).json({ status: "ok", data: link })
+                res.status(201).json({ ok: 1, data: link.data })
             } else {
                 res.status(400).json({ error: link.error })
             }
