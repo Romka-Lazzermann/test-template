@@ -5,7 +5,7 @@ const panelPaths = ['/panel/blog', '/panel/category', '/panel/channel', '/panel'
 
 async function getTranslatedLink(url: string, lang: string) {
   try {
-    const res = await fetch(`${process.env.SERVER_URL}/api/link/${url}?lang=${lang}`)
+    const res = await fetch(`${process.env.SERVER_URL}/api/link/get_language/${url}?lang=${lang}`)
     const data = await res.json()
     return data
   } catch {
@@ -37,9 +37,12 @@ export async function middleware(request: NextRequest) {
     const link_url = isBlog ? pathname.split('/')[2] : parts.slice(2).join('/');
     const link_data = await getTranslatedLink(link_url, userLang)
     if(link_data?.ok){
-      const redirectPath = `/${link_data?.data?.language}/blog/${link_url}`
+      const redirectPath = `/${link_data?.lang}/blog/${link_url}`
       if(pathname != redirectPath){
-        return NextResponse.redirect(new URL(redirectPath, request.url))
+        const url = new URL(request.url);
+        url.pathname = redirectPath;
+
+        return NextResponse.redirect(url)
       }
     }else {
       new Response('Not Found', { status: 404 })
