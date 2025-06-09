@@ -46,7 +46,7 @@ export async function updateCategory(formData: any, successCallback: any) {
         json[k] = v;
     })
     const res = await fetch(`/api/categories/${category_id}`, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },

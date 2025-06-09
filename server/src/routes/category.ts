@@ -57,7 +57,9 @@ export const createCategoryRoutes = () => {
 
   });
 
-  router.put("/:id", async (req: Request, res: Response) => {
+  router.post("/:id", async (req: Request, res: Response) => {
+        console.log("yo")
+
     try {
       const { title, description } = req.body
       const data = await service.update(Number(req.params.id), { title, description });

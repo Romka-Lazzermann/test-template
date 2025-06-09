@@ -1,6 +1,6 @@
 // components/Modal.tsx
 import React from 'react';
-import styles from '@/components/index.module.css'
+
 interface ModalProps {
     show: boolean;
     setShow: (value: boolean) => void;
@@ -14,24 +14,20 @@ const CreateFormModal: React.FC<ModalProps> = ({ show, setShow, children, handle
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
             setShow(false);
-            if(handleCloseCallback){
+            if (handleCloseCallback) {
                 handleCloseCallback();
             }
         }
     };
 
     return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={handleBackdropClick}>
+            <div className="bg-white rounded-lg shadow-xl transform transition-all max-w-2xl w-full max-h-[90vh] flex flex-col">
 
-        <div className={`${styles.modal_backdrop}`} onClick={handleBackdropClick}>
-            <div className={`${styles.modal}`}>
                 {children}
             </div>
         </div>
-
-
     );
 };
 
 export default CreateFormModal;
-
-

@@ -5,7 +5,7 @@ import LoginForm from "@/components/panel/login/LoginForm";
 export default function Login() {
 
     return (
-        <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="flex justify-center items-center h-screen">
             <LoginForm />
         </div>
     );

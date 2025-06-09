@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from '@/components/index.module.css';
 import CreateFormModal from '@/components/modals/CreateFormModal';
 import { fetchCategories } from '../category/fetchCalls'
 import { fetchBlogs, createBlog, updateBlog } from './fetchCalls'
 import BlogForm from './BlogForm';
+
 export interface Blog {
     id: string,
     title: string
@@ -34,24 +34,28 @@ export default function BlogsTable() {
     const generate_rows = (blogs: Array<Blog>) => {
         return blogs?.map((blog: Blog) => {
             return (
-                <tr key={blog.id}>
-                    <td>
+                <tr key={blog.id} className="border-b border-gray-700">
+                    <td className="py-2 px-4">
                         {blog.title}
                     </td>
-                    <td>
+                    <td className="py-2 px-4">
                         {blog.category}
                     </td>
-                    <td>
-                        {blog.status}
+                    <td className="py-2 px-4">
+                        {blog.status ? 'Active' : 'Inactive'}
                     </td>
-                    <td>
+                    <td className="py-2 px-4">
                         {blog.create_date}
                     </td>
-                    <td>
-                        <button type='button' onClick={() => {
-                            setSelectedBlog(blog)
-                            setShow(true)
-                        }} className='btn btn-sm btn-danger'>
+                    <td className="py-2 px-4">
+                        <button
+                            type='button'
+                            onClick={() => {
+                                setSelectedBlog(blog)
+                                setShow(true)
+                            }}
+                            className='bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-sm'
+                        >
                             <i className="bi bi-pencil-square"></i>
                         </button>
                     </td>
@@ -71,6 +75,7 @@ export default function BlogsTable() {
     const handleClick = () => {
         router.push('/panel/')
     };
+
     const handleAddClick = () => {
         setShow(true);
     }
@@ -94,8 +99,8 @@ export default function BlogsTable() {
         })
         setShow(false)
     }
-    const fetchUpdateCallback = (formData: any) => {
 
+    const fetchUpdateCallback = (formData: any) => {
         updateBlog(formData, (data: Blog) => {
             const _blogs = blogs.map((item, i) => (item.id === data.id ? data : item));
             setBlogs([..._blogs])
@@ -110,29 +115,27 @@ export default function BlogsTable() {
 
     return (
         <>
-
-            <div className='d-flex justify-content-between mb-2'>
-                <button onClick={handleClick} className='btn btn-secondary'>
+            <div className='flex justify-between mb-2'>
+                <button onClick={handleClick} className='bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded'>
                     <i className="bi bi-arrow-left"></i>
                     <span> Back</span>
                 </button>
 
-                <button onClick={handleAddClick} disabled={!categories?.length} className='btn btn-primary'>
+                <button onClick={handleAddClick} disabled={!categories?.length} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>
                     <i className="bi bi-plus-lg"></i>
                     <span> Add</span>
                 </button>
-
             </div>
-            <h2 className="mt-4">Blog</h2>
-            <div className='table-responsive'>
-                <table className={`${styles.table_rounded} table table-dark`}>
+            <h2 className="mt-4 text-xl font-bold">Blog</h2>
+            <div className='overflow-x-auto'>
+                <table className="min-w-full bg-gray-800 text-white rounded-lg overflow-hidden">
                     <thead>
-                        <tr>
-                            <th>Blog</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Create</th>
-                            <th></th>
+                        <tr className="bg-gray-700">
+                            <th className="text-left py-2 px-4">Blog</th>
+                            <th className="text-left py-2 px-4">Category</th>
+                            <th className="text-left py-2 px-4">Status</th>
+                            <th className="text-left py-2 px-4">Create</th>
+                            <th className="text-left py-2 px-4"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -144,15 +147,14 @@ export default function BlogsTable() {
             <CreateFormModal handleCloseCallback={() => {
                 setSelectedBlog(null)
             }} show={show} setShow={setShow}>
-               <BlogForm 
-               fetchUpdateCallback={fetchUpdateCallback} 
-               fetchCreateCallback={fetchCreateCallback} 
-               blog={selectedBlog} 
+               <BlogForm
+               fetchUpdateCallback={fetchUpdateCallback}
+               fetchCreateCallback={fetchCreateCallback}
+               blog={selectedBlog}
                setShow={setShow}>
                     {selectors}
                 </BlogForm>
             </CreateFormModal>
-
         </>
     )
 }

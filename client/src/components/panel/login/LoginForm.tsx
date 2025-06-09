@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import styles from './index.module.css';
 import { redirect } from 'next/navigation';
 
 export default function LoginForm() {
@@ -9,7 +8,6 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
-
     e.preventDefault();
     const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -27,38 +25,36 @@ export default function LoginForm() {
         redirect('/panel')
     }else {
         const data = await res.json();
-        
-        console.log("something wrong",data )
+        console.log("something wrong", data)
     }
-
   };
 
   return (
-    <div className={`${styles.login_form} p-4 shadow-lg rounded-3 bg-white col-md-6 col-lg-4`}>
-      <h3 className="text-center mb-4">Sign In</h3>
+    <div className="p-4 shadow-lg rounded-lg bg-white w-full max-w-sm">
+      <h3 className="text-center mb-4 text-xl font-bold">Sign In</h3>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label className="form-label">Login</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">Login</label>
           <input
             type="text"
-            className="form-control"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             value={login}
             onChange={(e) => setLogin(e.target.value)}
             required
           />
         </div>
         <div className="mb-3">
-          <label className="form-label">Password</label>
+          <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
           <input
             type="password"
-            className="form-control"
+            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        <div className="d-grid">
-          <button type="submit" className="btn btn-primary btn-lg">Login</button>
+        <div className="flex justify-center">
+          <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Login</button>
         </div>
       </form>
     </div>

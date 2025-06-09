@@ -71,7 +71,7 @@ export const createBlogRoutes = () => {
     res.json(blog);
   });
 
-  router.put('/:id', upload.single('img'), async (req : any, res : Response) => {
+  router.post('/:id', upload.single('img'), async (req : any, res : Response) => {
     try {
       const updated = await blogService.update(Number(req.params.id), {
         ...req.body,

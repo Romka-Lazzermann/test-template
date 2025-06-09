@@ -43,7 +43,7 @@ export async function updateBlog(formData: any, blogCallback: any){
     }
     formData.append("keywords", JSON.stringify(keywords))
     const res = await fetch(`/api/blogs/${blog_id}`, {
-        method: 'PUT',
+        method: 'POST',
         body: formData
     });
     if (res.ok) {

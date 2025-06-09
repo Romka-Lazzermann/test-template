@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import CreateFormModal from '@/components/modals/CreateFormModal';
-import styles from '@/components/index.module.css'
 import {fetchCategories, createCategory, updateCategory} from './fetchCalls'
+
 interface Category {
     id: string,
     title: string,
@@ -22,18 +22,18 @@ export default function CategoryTable() {
     const generate_rows = (categories: Array<Category>) => {
         return categories?.map((category: Category) => {
             return (
-                <tr key={category.id}>
-                    <td>
+                <tr key={category.id} className="border-b border-gray-700">
+                    <td className="py-2 px-4">
                         {category.title}
                     </td>
-                    <td>
+                    <td className="py-2 px-4">
                         {category.status}
                     </td>
-                    <td>
+                    <td className="py-2 px-4">
                         {category.create_date}
                     </td>
-                    <td>
-                        <button type='button' onClick={() => handleEditClick(category)} className='btn btn-sm btn-danger'>
+                    <td className="py-2 px-4">
+                        <button type='button' onClick={() => handleEditClick(category)} className='bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded text-sm'>
                             <i className="bi bi-pencil-square"></i>
                         </button>
                     </td>
@@ -45,6 +45,7 @@ export default function CategoryTable() {
     const handleBackClick = () => {
         router.push('/panel/')
     };
+
     const handleAddClick = () => {
         setShow(true);
     }
@@ -55,7 +56,6 @@ export default function CategoryTable() {
     }
 
     const rows = useMemo(() => generate_rows(categories), [categories])
-
 
     useEffect(() => {
         fetchCategories((categories: Array<Category>) => {
@@ -87,28 +87,26 @@ export default function CategoryTable() {
 
     return (
         <>
-
-            <div className='d-flex justify-content-between mb-2'>
-                <button onClick={handleBackClick} className='btn btn-secondary'>
+            <div className='flex justify-between mb-2'>
+                <button onClick={handleBackClick} className='bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded'>
                     <i className="bi bi-arrow-left"></i>
                     <span> Back</span>
                 </button>
 
-                <button onClick={handleAddClick} className='btn btn-primary'>
+                <button onClick={handleAddClick} className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>
                     <i className="bi bi-plus-lg"></i>
                     <span> Add</span>
                 </button>
-
             </div>
-            <h2 className="mt-4">Category</h2>
-            <div className='table-responsive'>
-                <table className={`table table-dark`}>
+            <h2 className="mt-4 text-xl font-bold">Category</h2>
+            <div className='overflow-x-auto'>
+                <table className="min-w-full bg-gray-800 text-white rounded-lg overflow-hidden">
                     <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Create</th>
-                            <th></th>
+                        <tr className="bg-gray-700">
+                            <th className="text-left py-2 px-4">Category</th>
+                            <th className="text-left py-2 px-4">Status</th>
+                            <th className="text-left py-2 px-4">Create</th>
+                            <th className="text-left py-2 px-4"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -118,34 +116,38 @@ export default function CategoryTable() {
             </div>
             <CreateFormModal handleCloseCallback={() => { setSelectedCategory(null) }} show={show} setShow={setShow}>
                 <form onSubmit={handleCreateFormSubmit}>
-                    <div className={styles.modal_header}>
-                        <h2>{selectedCategory ? 'Edit Category' : 'Add Category'}</h2>
-                        <button type="button" onClick={() => {
-                            setShow(false)
-                            setSelectedCategory(null)
-                        }}>×</button>
+                    <div className=" overflow-y-auto flex-grow px-6 py-4 flex justify-between items-center pb-3 border-b border-gray-700">
+                        <h2 className="text-xl font-bold">{selectedCategory ? 'Edit Category' : 'Add Category'}</h2>
+                        <button
+                            type="button"
+                            className="text-gray-400 hover:text-gray-600"
+                            onClick={() => {
+                                setShow(false)
+                                setSelectedCategory(null)
+                            }}
+                        >
+                            ×
+                        </button>
                     </div>
 
-                    <div className={styles.modal_body}>
-                        <label className="form-label">
+                    <div className="overflow-y-auto flex-grow px-6 py-4 ">
+                        <label className="block mb-2 text-sm font-bold">
                             Title
-                            <input defaultValue={selectedCategory?.title || ''} className='form-control w-100' type="text" name="title" required />
+                            <input defaultValue={selectedCategory?.title || ''} className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mt-1' type="text" name="title" required />
                         </label>
-                        <label>
+                        <label className="block mb-2 text-sm font-bold">
                             Description:
-                            <textarea defaultValue={selectedCategory?.description || ''} className='form-control w-100' name="description" required />
+                            <textarea defaultValue={selectedCategory?.description || ''} className='shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline mt-1' name="description" required />
                         </label>
-
                         <input type="hidden" id="category_id" name="category_id" defaultValue={selectedCategory?.id || ''} />
                     </div>
 
-                    <div className={styles.modal_footer}>
-                        <button className='btn btn-primary' type="submit">{selectedCategory ? 'Update' : 'Add'}</button>
-                        <button className='btn btn-danger' type="button" onClick={() => setShow(false)}>Close</button>
+                    <div className="flex justify-end pt-4 border-t border-gray-700">
+                        <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2' type="submit">{selectedCategory ? 'Update' : 'Add'}</button>
+                        <button className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded' type="button" onClick={() => setShow(false)}>Close</button>
                     </div>
                 </form>
             </CreateFormModal>
-
         </>
     )
 }

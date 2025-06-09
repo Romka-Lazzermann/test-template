@@ -32,7 +32,7 @@ export const createChannelRoutes = () => {
         }
     });
 
-    router.put("/:id", async (req: Request, res: Response) => {
+    router.post("/:id", async (req: Request, res: Response) => {
         try{
             const { channel_key, channel_value } = req.body
             const data = await service.update(Number(req.params.id), { channel_key, channel_value });

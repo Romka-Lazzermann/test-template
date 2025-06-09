@@ -48,7 +48,7 @@ export async function updateStyle(formData: any, successCallback: any) {
     })
 
     const res = await fetch(`/api/styles/${style_id}`, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },

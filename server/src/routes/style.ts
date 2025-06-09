@@ -34,7 +34,7 @@ export const createStyleRoutes = () => {
         }
     });
 
-    router.put("/:id", async (req: Request, res: Response) => {
+    router.post("/:id", async (req: Request, res: Response) => {
         try {
             const { style_key } = req.body
             const data = await service.update(Number(req.params.id), { style_key })

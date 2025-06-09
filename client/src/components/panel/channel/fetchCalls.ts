@@ -46,7 +46,7 @@ export async function updateChannel(formData: any, successCallback: any) {
         json[k] = v;
     })
     const res = await fetch(`/api/channels/${channel_id}`, {
-        method: 'PUT',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
