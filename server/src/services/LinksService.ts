@@ -5,7 +5,7 @@ import slugify from "slugify";
 import path from "path";
 import fs from 'fs';
 import { LinksMultilang } from "../entity/LinksMultilang";
-import {isStringifiedArray} from "../helpers/format"
+import {isStringifiedArray, cutThePrompt} from "../helpers/format"
 @injectable()
 export class LinksService {
     protected LinksRepo: Repository<Links>;
@@ -270,7 +270,8 @@ export class LinksService {
     }
 
     async addGeneratedContent(link_id: number, prompt_payload: Partial<any>) {
-        const cut_parts = this.cutLinkParts(prompt_payload?.text || '')
+        const cut_parts = cutThePrompt(true, prompt_payload?.text || '')
+        // console.log("addGeneratedContent", cut_parts)
         try {
             const _l = await this.LinksRepo.findOneBy({
                 id: link_id
@@ -298,7 +299,8 @@ export class LinksService {
     }
 
     async addTraslatedLink(id: number, prompt_payload: any, lang: string) {
-        const cut_parts = this.cutLinkParts(prompt_payload?.text || '')
+        const cut_parts = cutThePrompt(true, prompt_payload?.text || '')
+        // console.log("addTraslatedLink", cut_parts)
         try {
             const _l = await this.LinksMultilangRepo.findOneBy({
                 link_id: id,
@@ -323,42 +325,5 @@ export class LinksService {
             return { ok: 0, error: err }
         }
 
-    }
-
-    private cutLinkParts(text: string) {
-        let match;
-        let answer: Partial<any> = {}
-
-        match = text.match(/#lang_start#([\s\S]*?)#lang_end#/)
-        if (match) {
-            answer['lang'] = match[1].trim()
-        }
-
-        match = text.match(/#title_start#([\s\S]*?)#title_end#/)
-        if (match) {
-            answer['title'] = match[1].trim()
-        }
-
-        match = text.match(/#description_start_text_start#([\s\S]*?)#description_start_text_end#/)
-        if (match) {
-            answer['description_start_text'] = match[1].trim()
-        }
-        match = text.match(/#description_start#([\s\S]*?)#description_end#/)
-        if (match) {
-            answer['description'] = match[1].trim()
-        }
-        match = text.match(/#summary_start#([\s\S]*?)#summary_end#/)
-        if (match) {
-            answer['summary'] = match[1].trim()
-        }
-        match = text.match(/#keywords_start#([\s\S]*?)#keywords_end#/)
-        if (match) {
-            answer['keywords'] = JSON.stringify(match[1].trim().split(','))
-        }
-
-        if (answer['description'] && answer['summary']) {
-            answer['sub_description'] = answer['description'].concat(answer['summary'])
-        }
-        return answer
     }
 }

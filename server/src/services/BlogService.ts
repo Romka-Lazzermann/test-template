@@ -5,6 +5,7 @@ import { injectable, inject } from 'tsyringe';
 import path from "path";
 import fs from 'fs';
 import slugify from "slugify";
+import { cutThePrompt } from "../helpers/format";
 @injectable()
 export class BlogService {
     protected blogRepo: Repository<Blog>;
@@ -47,7 +48,7 @@ export class BlogService {
 
         const blog_prompt = await Gemini.generateBlogContent(blogData.title || null)
 
-        const _blog_text_parts = this.cutBlogParts(blog_prompt.text);
+        const _blog_text_parts = cutThePrompt(false, blog_prompt.text);
         const name = slugify(blogData?.title || '', {
             locale: 'en',
             replacement: '_',
