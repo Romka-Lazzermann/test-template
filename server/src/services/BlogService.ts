@@ -14,36 +14,6 @@ export class BlogService {
         this.blogRepo = this.datasource.getRepository(Blog)
     }
 
-    private cutBlogParts(text: string) {
-        let match;
-        let answer: Partial<any> = {}
-        match = text.match(/#title_start#([\s\S]*?)#title_end#/)
-        if (match) {
-            answer['title'] = match[1].trim()
-        }
-        match = text.match(/#description_start_text_start#([\s\S]*?)#description_start_text_end#/)
-        if (match) {
-            answer['description_start_text'] = match[1].trim()
-        }
-        match = text.match(/#description_start#([\s\S]*?)#description_end#/)
-        if (match) {
-            answer['description'] = match[1].trim()
-        }
-        match = text.match(/#summary_start#([\s\S]*?)#summary_end#/)
-        if (match) {
-            answer['summary'] = match[1].trim()
-        }
-        match = text.match(/#keywords_start#([\s\S]*?)#keywords_end#/)
-        if (match) {
-            answer['keywords'] = JSON.stringify(match[1].trim().split(','))
-        }
-
-        if (answer['description'] && answer['summary']) {
-            answer['sub_description'] = answer['description'].concat(answer['summary'])
-        }
-        return answer
-    }
-
     async create(blogData: Partial<Blog>): Promise<Blog | null> {
 
         const blog_prompt = await Gemini.generateBlogContent(blogData.title || null)
@@ -71,8 +41,16 @@ export class BlogService {
     }
 
     async findOne(id: number): Promise<Blog | null> {
-        console.log("number", typeof id)
         return await this.blogRepo.findOne({ where: { id }, relations: ['category_id'] });
+    }
+
+    async increment(id: number) {
+        await this.blogRepo
+            .createQueryBuilder()
+            .update(Blog)
+            .set({ view: () => "view + 1" })
+            .where("id = :id", { id: id })
+            .execute()
     }
 
     async getPopular() {
@@ -129,7 +107,7 @@ export class BlogService {
             .getRawMany()
     }
 
-    
+
 
     async update(id: number, updateData: Partial<Blog>): Promise<Blog | null> {
         const blog = await this.blogRepo.findOneBy({ id });

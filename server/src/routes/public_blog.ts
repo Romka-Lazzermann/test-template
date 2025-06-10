@@ -85,6 +85,7 @@ export const createPublicBlogRoutes = () => {
                 res.status(404).json({ error: "Blog not found" });
                 return
             }
+            await blogService.increment(+req.params.id)
             res.json(formatBlog(blog));
         }
         catch (err) {
