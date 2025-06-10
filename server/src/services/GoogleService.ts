@@ -37,12 +37,11 @@ export class GoogleService {
                     cx: this.search_engine_id,
                 },
             });
-            console.log("show me waht yo got", data)
             if (Array.isArray(data.items) && data.items.length > 0) {
                 await fs.writeFile(cacheFile, JSON.stringify(data));
             }
 
-            return data;
+            return data.items;
         } catch (error) {
             console.error('Search error:', error);
             return { error: 'Search failed' };
