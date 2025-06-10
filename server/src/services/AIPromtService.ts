@@ -78,7 +78,6 @@ export class AIPromtService {
             }
         }
         const response = await this.request(url, data);
-        console.log("Show me the response", response)
         const text = response['candidates'][0]['content']['parts'][0]['text'] || null
         const finishReason = response['candidates'][0]['finishReason'] || null
         const promptTokenCount = response['usageMetadata']['promptTokenCount'] || 0

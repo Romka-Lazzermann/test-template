@@ -9,8 +9,9 @@ import { createCategoryRoutes } from './routes/category'
 import { createChannelRoutes } from './routes/channel'
 import { createStyleRoutes } from './routes/style'
 import { createLinkRoutes } from './routes/links'
-import {createPublicBlogRoutes} from './routes/public_blog'
-import {createPublicCategoryRoutes} from './routes/public_category'
+import { createPublicBlogRoutes } from './routes/public_blog'
+import { createPublicCategoryRoutes } from './routes/public_category'
+import { createGoogleRoutes } from './routes/public_google'
 
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
@@ -33,6 +34,7 @@ Promise.all([AppDataSource.initialize(), UserDbDataSource.initialize()]).then(()
     .use('/public', express.Router()
       .use('/blogs', createPublicBlogRoutes())
       .use('/categories', createPublicCategoryRoutes())
+      .use('/search', createGoogleRoutes())
     )
     .use('/', createLinkRoutes())
     .use('/auth', createAuthRoutes())
