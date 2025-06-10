@@ -10,6 +10,8 @@ import { validateDynamicLinksRequest } from '../helpers/validate'
 import PQueue from 'p-queue';
 import { AIPromtService } from "../services/AIPromtService";
 import retry from 'async-retry';
+import { CombinationService } from "../services/CombinationService";
+import { isStringifiedArray } from "../helpers/format";
 
 export const createLinkRoutes = () => {
     const promptQueue = new PQueue({ concurrency: 10 });
@@ -39,6 +41,10 @@ export const createLinkRoutes = () => {
             retry(
                 async () => {
                     const gemini = container.resolve(AIPromtService);
+                    const keywords = payload?.keywords_ai
+                    if(isStringifiedArray(keywords)){
+                        payload.keywords_ai = JSON.parse(keywords)?.join(",")
+                    }
                     const content = await gemini.translateLinkContent(payload);
                     const linkService = container.resolve(LinksService);
                     await linkService.addTraslatedLink(linkId, content, payload?.to_lang);
@@ -137,7 +143,6 @@ export const createLinkRoutes = () => {
             const _l = req.params.link_name.split('-')
             const id = Number(_l[0])
             const name = _l[1]
-            // console.log("req.params", req.params, { ...req.query })
 
             const link = await linkService.findByUrl({
                 id,
@@ -145,14 +150,16 @@ export const createLinkRoutes = () => {
             }, lang)
 
             const impressionService = container.resolve(ImpressionService);
-            const impression = await impressionService.create(link.data?.id || 0, campaignid, fbclid, ttclid)
+            const combinationService = container.resolve(CombinationService);
 
+            const impression = await impressionService.create(link.data?.id || 0, campaignid, fbclid, ttclid)
+            const combination = await combinationService.findByID(impression.combination_id);
             if (link?.translate) {
                 translateLinkContent(link?.payload, link.id)
-                res.status(201).json({ ok: 1, data: {...link.data, impression_id: impression.id } })
+                res.status(201).json({ ok: 1, data: {...link.data, ...combination, impression_id: impression.id } })
             }
             else if (link?.ok) {
-                res.status(201).json({ ok: 1, data: {...link.data, impression_id: impression.id} })
+                res.status(201).json({ ok: 1, data: {...link.data, ...combination, impression_id: impression.id} })
             } else {
                 res.status(400).json({ error: link.error })
             }

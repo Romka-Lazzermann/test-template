@@ -5,7 +5,7 @@ import slugify from "slugify";
 import path from "path";
 import fs from 'fs';
 import { LinksMultilang } from "../entity/LinksMultilang";
-
+import {isStringifiedArray} from "../helpers/format"
 @injectable()
 export class LinksService {
     protected LinksRepo: Repository<Links>;
@@ -37,7 +37,7 @@ export class LinksService {
                     adw_id: data?.adw_id,
                     channel_offer: data?.channel_offer,
                     title: data?.title,
-                    keywords: JSON.stringify(data?.keywords),
+                    keywords:  isStringifiedArray(data?.keywords || '') ? JSON.stringify(data?.keywords) : JSON.stringify(data.keywords?.split(",")),
                     img: data?.img,
                 }
                 find_link = await this.LinksRepo.findOneBy({
@@ -55,7 +55,7 @@ export class LinksService {
                     ubi_user_id: data?.ubi_user_id,
                     channel_offer: data?.channel_offer,
                     title: data?.title,
-                    keywords: JSON.stringify(data?.keywords),
+                    keywords:  isStringifiedArray(data?.keywords || '') ? JSON.stringify(data?.keywords) : JSON.stringify(data.keywords?.split(",")),
                     img: data?.img
                 }
                 find_link = await this.LinksRepo.findOneBy({
@@ -187,7 +187,9 @@ export class LinksService {
                     ok: 1, lang: _l?.lang, data: {
                         title: _l?.title_white,
                         description: _l?.description_white,
-                        lang: _l?.lang
+                        lang: _l?.lang,
+                        img: `${process.env.SERVER_URL}/${_l.img}`,
+                        keywords: _l?.keywords
                     }
                 }
             }
@@ -204,9 +206,12 @@ export class LinksService {
                     return {
                         ok: 1, lang: language, data: {
                             id: _l.id,
-                            title: _multi_l?.status ? _multi_l?.title : _l.title,
-                            description: _multi_l?.status ? _multi_l?.description : _l.description,
-                            lang: _multi_l?.status ? _multi_l?.lang : _l.lang
+                            title: _multi_l?.status ? _multi_l?.title : _l.title_white,
+                            description: _multi_l?.status ? _multi_l?.description : _l.description_white,
+                            lang: _multi_l?.status ? _multi_l?.lang : _l.lang,
+                            img: `${process.env.SERVER_URL}/${_l.img}`,
+                            keywords: _multi_l.keywords ? _multi_l?.keywords : _l.keywords,
+
                         }
                     }
                 } else {
@@ -223,7 +228,10 @@ export class LinksService {
                             id: _l?.id,
                             title: _l?.title_white,
                             description: _l?.description_white,
-                            language: _l?.lang
+                            language: _l?.lang,
+                            img: `${process.env.SERVER_URL}/${_l.img}`,
+                            keywords: _l.keywords
+
                         },
                         payload: {
                             title_ai: _l.title_white,
@@ -242,7 +250,8 @@ export class LinksService {
                     id: _l?.id,
                     title: _l?.title_white,
                     description: _l?.description_white,
-                    lang: _l?.lang
+                    lang: _l?.lang,
+                    keywords: _l?.keywords
                 }
             }
         }
@@ -295,8 +304,8 @@ export class LinksService {
                 link_id: id,
                 lang: lang
             })
-
             if (_l) {
+                cut_parts['keywords'] = cut_parts['keywords'].replace(/\\/g, "")
                 _l.title = cut_parts['title'] || ''
                 _l.description = cut_parts['description'] || ''
                 _l.sub_description = cut_parts['description'] || ''

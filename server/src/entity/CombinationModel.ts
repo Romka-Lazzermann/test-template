@@ -7,7 +7,11 @@ export class Combinations {
     @PrimaryGeneratedColumn()
     id!: number
 
-    @Column({type: 'varchar', length: 100, nullable: true})
+    @ManyToOne(() => Channel, (channel) => channel.id, { nullable: false })
+    @JoinColumn({ name: 'channel_id' })
+    channel!: Channel
+
+    @Column({ type: 'varchar', length: 100, nullable: true })
     style_id!: string;
 
     @Column({type: "int"})

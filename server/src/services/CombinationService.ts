@@ -31,6 +31,22 @@ export class CombinationService {
 
     }
 
+    async findByID(comb_id: number){
+         try {
+            const combination : any = await this.CombinationRepo.findOne({
+                relations: ['channel'],
+                where: {
+                    id: comb_id
+                }
+            })
+            return {styleID: combination.style_id, channel:  combination.channel.channel_key};
+
+        } catch (err) {
+            console.error(err)
+            return null
+        }
+    }
+
     async linkCombination(link_id: number, subid: string) {
         try {
             const linkService = container.resolve(LinksService)
