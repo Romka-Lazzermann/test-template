@@ -18,6 +18,10 @@ export class CategoryService {
     return await this.CategoryRepo.findOneBy({ id });
   }
 
+  async findOneByName(name: string) {
+    return await this.CategoryRepo.findOneBy({ name });
+  }
+
   async create(data: Partial<Category>) {
 
     if (!data?.name) {

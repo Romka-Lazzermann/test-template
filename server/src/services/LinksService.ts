@@ -94,7 +94,7 @@ export class LinksService {
             console.log("link, link to response", _l,)
 
             const urlParam = new URLSearchParams({ creative: prepared_data?.title || '' }).toString();
-            const generated_link = `https://${_l.domain}/blog/${_l.id}-${_l.name}?${urlParam}`;
+            const generated_link = `https://${_l.domain}/article/${_l.id}-${_l.name}?${urlParam}`;
             return { ok: 1, link: generated_link, id: _l.id, title: _l.title }
         }
         catch (err) {
@@ -164,7 +164,7 @@ export class LinksService {
             const saved = await this.LinksRepo.save(_l);
 
             const urlParam = new URLSearchParams({ creative: saved?.title || '' }).toString();
-            const generated_link = `https://${_l.domain}/blog/${_l.id}-${_l.name}?${urlParam}`;
+            const generated_link = `https://${_l.domain}/article/${_l.id}-${_l.name}?${urlParam}`;
             return { success: 1, link: generated_link }
 
         } catch (error) {

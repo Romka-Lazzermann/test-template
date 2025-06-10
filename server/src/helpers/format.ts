@@ -4,10 +4,14 @@ export function format_seconds_timestamp(timestamp: number, format: string){
     return dayjs.unix(timestamp).format(format);
 }
 
-export function isStringifiedArray(str: string) {
+export function isStringifiedArray(str: string, re: number = 0) {
   try {
     const parsed = JSON.parse(str);
-    return Array.isArray(parsed);
+    const parserdIf =Array.isArray(parsed);
+    if(!parserdIf){
+      throw "Parse error"
+    }
+    return re ? parsed : parserdIf
   } catch (e) {
     return false;
   }

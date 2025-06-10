@@ -7,14 +7,6 @@ export const createPublicCategoryRoutes = () => {
     const categoryService = container.resolve(CategoryService)
     const router = Router();
 
-    const formatBlog = (blog: any) => ({
-        link: `/blog/${blog.id}`,
-        img: blog.img,
-        title: blog.title,
-        description: blog.description,
-        sub_description: blog.sub_description,
-    });
-
     router.get("/", async (_req: Request, res: Response) => {
         try {
             const categories = await categoryService.findAll();
@@ -22,7 +14,7 @@ export const createPublicCategoryRoutes = () => {
                 return {
                     id: cat.id,
                     name: cat.name,
-                    category: cat.description
+                    title: cat.title
                 }
             })
             res.status(201).json(_c)

@@ -4,7 +4,7 @@ import Gemini from "../services/AIPromtService"
 import { injectable, inject } from 'tsyringe';
 import path from "path";
 import fs from 'fs';
-
+import slugify from "slugify";
 @injectable()
 export class BlogService {
     protected blogRepo: Repository<Blog>;
@@ -42,11 +42,19 @@ export class BlogService {
         }
         return answer
     }
+
     async create(blogData: Partial<Blog>): Promise<Blog | null> {
+
         const blog_prompt = await Gemini.generateBlogContent(blogData.title || null)
 
         const _blog_text_parts = this.cutBlogParts(blog_prompt.text);
-
+        const name = slugify(blogData?.title || '', {
+            locale: 'en',
+            replacement: '_',
+            lower: true,
+            strict: true
+        })
+        blogData['name'] = name;
         const blog = this.blogRepo.create({ ...blogData, ..._blog_text_parts });
         blog.time_create = Math.floor(Date.now() / 1000);
         const _blog = await this.blogRepo.save(blog);
@@ -62,8 +70,65 @@ export class BlogService {
     }
 
     async findOne(id: number): Promise<Blog | null> {
+        console.log("number", typeof id)
         return await this.blogRepo.findOne({ where: { id }, relations: ['category_id'] });
     }
+
+    async getPopular() {
+        return await this.blogRepo
+            .createQueryBuilder("blog")
+            .innerJoinAndSelect(
+                "blog.category_id",
+                "category",
+                "category.id = blog.category_id",
+            )
+            .orderBy('blog.view', 'DESC')
+            .limit(16)
+            .getRawMany()
+    }
+
+    async getLatest() {
+        return await this.blogRepo
+            .createQueryBuilder("blog")
+            .innerJoinAndSelect(
+                "blog.category_id",
+                "category",
+                "category.id = blog.category_id",
+            )
+            .orderBy('blog.time_create', 'DESC')
+            .limit(16)
+            .getRawMany()
+    }
+
+    async getByCategoryId(category_id: number) {
+        return await this.blogRepo
+            .createQueryBuilder("blog")
+            .innerJoinAndSelect(
+                "blog.category_id",
+                "category",
+                "category.id = blog.category_id",
+            )
+            .where('blog.category_id = :category_id', { category_id: category_id })
+            .orderBy('blog.time_create', 'DESC')
+            .limit(20)
+            .getRawMany()
+    }
+
+    async getRecent(blog_id: number) {
+        return await this.blogRepo
+            .createQueryBuilder("blog")
+            .innerJoinAndSelect(
+                "blog.category_id",
+                "category",
+                "category.id = blog.category_id",
+            )
+            .where('blog.id != :blog_id', { blog_id: blog_id })
+            .orderBy('blog.time_create', 'DESC')
+            .limit(4)
+            .getRawMany()
+    }
+
+    
 
     async update(id: number, updateData: Partial<Blog>): Promise<Blog | null> {
         const blog = await this.blogRepo.findOneBy({ id });
