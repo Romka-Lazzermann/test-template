@@ -5,40 +5,27 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import type { Metadata } from 'next';
+import { fetchData } from '@/lib/api';
+import { Article } from '@/types';
+import { notFound } from 'next/navigation';
 
 interface CategoryPageProps {
-  params: { categoryName: string };
+  params: { name: string };
 }
 
-export async function generateStaticParams() {
-  const categories = getAllUniqueCategories();
-  return categories.map((category) => ({
-    categoryName: category, // category slugs are already lowercase
-  }));
-}
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-  const categoryName = params.categoryName;
-  const displayCategoryName = formatCategoryName(categoryName);
-  return {
-    title: `Articles in ${displayCategoryName} | MuseBlog`,
-    description: `Browse all articles in the ${displayCategoryName} category on MuseBlog.`,
-  };
-}
 
-// Helper function to format category name for display
-function formatCategoryName(categorySlug: string): string {
-  if (!categorySlug) return '';
-  return categorySlug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const { name } = await params;
+  const blog: Article[] = await fetchData(`${process.env.SERVER_URL}/api/public/blogs/category/${name}`)
 
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const articles = getArticlesByCategory(params.categoryName);
-  const displayCategoryName = formatCategoryName(params.categoryName);
-
+  // const articles = getArticlesByCategory(params.categoryName);
+  // const displayCategoryName = formatCategoryName(params.categoryName);
+  if (!blog) {
+    notFound();
+  }
+  const displayCategoryName = blog[0].category;
+  console.log("blog", blog?.length)
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between mb-6">
@@ -52,14 +39,14 @@ export default function CategoryPage({ params }: CategoryPageProps) {
 
       <header className="bg-card p-4 sm:p-6 rounded-lg shadow-sm text-center">
         <h1 className="text-2xl sm:text-3xl font-semibold text-foreground">
-          Category: <span className="text-primary">{displayCategoryName}</span>
+          Category: <span className="text-primary">{name}</span>
         </h1>
       </header>
 
-      {articles.length > 0 ? (
+      {blog.length > 0 ? (
          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {articles.map((article) => (
-            <ArticleCard key={article.slug} article={article} variant="default" />
+          {blog.map((article, index) => (
+            <ArticleCard key={`${article.name}-${index}`} article={article} variant="default" />
           ))}
         </div>
       ) : (

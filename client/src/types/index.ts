@@ -1,13 +1,16 @@
 export interface Article {
-  slug: string;
+  link: string;
+  name: string;
   title: string;
   datePublished: string;
-  author: string;
   category: string;
-  imageUrl: string;
+  category_name: string;
+  img: string;
   imageHint?: string;
-  content: string; // Full HTML content for the article page
-  excerpt: string; // Short summary, possibly AI-generated
-  isFeatured?: boolean;
-  tags?: string[];
+  description: string; // Full HTML content for the article page
+  sub_description: string;
+  data_created: string;
+  // excerpt: string; // Short summary, possibly AI-generated
+  // isFeatured?: boolean;
+  keywords?: string[];
 }

@@ -19,8 +19,8 @@ export async function middleware(request: NextRequest) {
   const isPanelPath = pathname.startsWith('/panel');
   const isLoginPath = pathname === '/panel/login';
   const parts = pathname.split('/').filter(Boolean);
-  const isBlog = pathname.startsWith('/blog')
-  const isTraslatedBlog = parts?.length >= 3 && parts[1] === 'blog'
+  const isBlog = pathname.startsWith('/article')
+  const isTraslatedBlog = parts?.length >= 3 && parts[1] === 'article'
 
 
   if (isPanelPath) {
@@ -37,7 +37,7 @@ export async function middleware(request: NextRequest) {
     const link_url = isBlog ? pathname.split('/')[2] : parts.slice(2).join('/');
     const link_data = await getTranslatedLink(link_url, userLang)
     if(link_data?.ok){
-      const redirectPath = `/${link_data?.lang}/blog/${link_url}`
+      const redirectPath = `/${link_data?.lang}/article/${link_url}`
       if(pathname != redirectPath){
         const url = new URL(request.url);
         url.pathname = redirectPath;

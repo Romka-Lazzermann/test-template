@@ -14,7 +14,7 @@ interface ArticleCardProps {
 }
 
 const ArticleCard = ({ article, variant = 'default', className = '' }: ArticleCardProps) => {
-  const { slug, title, imageUrl, imageHint, excerpt, datePublished, category, author } = article;
+  const { link, name, title, img, imageHint, data_created, category } = article;
 
   const isCompact = variant === 'compact';
   const isFeatured = variant === 'featured';
@@ -25,13 +25,13 @@ const ArticleCard = ({ article, variant = 'default', className = '' }: ArticleCa
       isFeatured ? "col-span-1 md:col-span-2 lg:col-span-4 flex flex-col md:flex-row" : "", // Specific for featured, spanning more columns
       className
     )}>
-      <Link href={`/articles/${slug}`} className={cn("block", isFeatured ? "md:flex md:w-full" : "")}>
+      <Link href={`${link}`} className={cn("block", isFeatured ? "md:flex md:w-full" : "")}>
         <div className={cn(
             "relative w-full overflow-hidden",
             isFeatured ? "md:w-1/2 aspect-[16/9] md:aspect-auto" : "aspect-[16/9]" // Featured image takes half width on md+
         )}>
           <Image
-            src={imageUrl}
+            src={img}
             alt={title}
             layout="fill"
             objectFit="cover"
@@ -56,25 +56,13 @@ const ArticleCard = ({ article, variant = 'default', className = '' }: ArticleCa
           )}>
             {title}
           </CardTitle>
-          {((!isCompact && excerpt) || isFeatured) && ( // Show excerpt for featured too
-             <p className={cn(
-                "text-muted-foreground line-clamp-2 mt-1 sm:mt-1.5",
-                isFeatured ? "text-sm sm:text-base md:line-clamp-3" : "text-xs sm:text-sm"
-             )}>
-               {excerpt}
-             </p>
-          )}
           <div className={cn(
             "flex items-center text-xs text-muted-foreground mt-2 sm:mt-2.5 space-x-2 sm:space-x-3",
             isFeatured ? "md:mt-4" : ""
           )}>
             <div className="flex items-center">
-              <UserCircle className="h-3.5 w-3.5 mr-1" />
-              <span className="truncate max-w-[100px] sm:max-w-[120px]">{author}</span>
-            </div>
-            <div className="flex items-center">
               <CalendarDays className="h-3.5 w-3.5 mr-1" />
-              <span>{new Date(datePublished).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              <span>{new Date(data_created).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
             </div>
           </div>
         </CardContent>
