@@ -1,7 +1,4 @@
 
-import { searchArticles } from '@/lib/articles';
-import ArticleCard from '@/components/article-card';
-import SearchBar from '@/components/search-bar';
 import { fetchData } from '@/lib/api';
 import LinkSnippetCard from '@/components/link-snippet-card'
 interface SearchPageProps {
@@ -9,11 +6,11 @@ interface SearchPageProps {
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
-  const query = searchParams?.q || '';
-  const articles = searchArticles(query);
+  const searchP = await searchParams
+  const query =  searchP?.q || '';
   const search = await fetchData(`${process.env.SERVER_URL}/api/public/search?q=${query}`)
   const { items } = search;
-  console.log(Object.keys(items))
+  console.log(Object.keys(search))
   return (
     <div className="space-y-8">
       <header className="bg-card p-4 sm:p-6 rounded-lg shadow-sm">

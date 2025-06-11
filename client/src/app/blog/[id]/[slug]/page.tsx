@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CalendarDays, UserCircle, Tag } from 'lucide-react';
 import { fetchData } from '@/lib/api'
+import LinkSnippetCard from '@/components/link-snippet-card';
 
 interface ArticlePageProps {
   params: { id: string, slug: string };
@@ -43,6 +44,16 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           </div>
         </header>
 
+        {blog?.keywords?.length && blog.keywords?.map((keyword: any, index) => (
+        <LinkSnippetCard
+          link={`/query?q=${keyword}`}
+          snippet=''
+          title={keyword}
+          key={`${keyword}-${index}`}
+          redirect={false}
+        />
+      ))}
+
         <div className="relative w-full aspect-[16/9] rounded-md overflow-hidden shadow-sm my-4 sm:my-6">
           <Image
             src={blog.img}
@@ -53,15 +64,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             data-ai-hint={blog.category.toLowerCase()}
           />
         </div>
-        {/* <div
-          className="prose prose-lg max-w-none text-foreground/90 
-                     prose-headings:text-primary prose-headings:font-semibold
-                     prose-a:text-accent hover:prose-a:underline
-                     prose-strong:text-foreground 
-                     prose-blockquote:border-accent prose-blockquote:text-muted-foreground
-                     prose-img:rounded-md prose-img:shadow-sm"
-          dangerouslySetInnerHTML={{ __html: blog.description }}
-        /> */}
+        
         <div
           className="prose prose-lg max-w-none text-foreground/90 
                      prose-headings:text-primary prose-headings:font-semibold
