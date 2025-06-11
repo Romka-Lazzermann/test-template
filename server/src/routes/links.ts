@@ -42,7 +42,7 @@ export const createLinkRoutes = () => {
                 async () => {
                     const gemini = container.resolve(AIPromtService);
                     const keywords = payload?.keywords_ai
-                    if(isStringifiedArray(keywords)){
+                    if (isStringifiedArray(keywords)) {
                         payload.keywords_ai = JSON.parse(keywords)?.join(",")
                     }
                     const content = await gemini.translateLinkContent(payload);
@@ -62,6 +62,7 @@ export const createLinkRoutes = () => {
 
     const router = Router();
     const linkService = container.resolve(LinksService)
+    const impressionService = container.resolve(ImpressionService)
 
     router.post('/link_create', upload.single('image'), async (req: Request, res: Response) => {
         try {
@@ -118,7 +119,7 @@ export const createLinkRoutes = () => {
             const link = await linkService.findByUrl({
                 id,
                 name
-            }, lang) 
+            }, lang)
 
             if (link?.translate) {
                 translateLinkContent(link?.payload, link.id)
@@ -156,15 +157,27 @@ export const createLinkRoutes = () => {
             const combination = await combinationService.findByID(impression.combination_id);
             if (link?.translate) {
                 translateLinkContent(link?.payload, link.id)
-                res.status(201).json({ ok: 1, data: {...link.data, ...combination, impression_id: impression.id } })
+                res.status(201).json({ ok: 1, data: { ...link.data, ...combination, impression_id: impression.id } })
             }
             else if (link?.ok) {
-                res.status(201).json({ ok: 1, data: {...link.data, ...combination, impression_id: impression.id} })
+                res.status(201).json({ ok: 1, data: { ...link.data, ...combination, impression_id: impression.id } })
             } else {
                 res.status(400).json({ error: link.error })
             }
         } catch (err) {
             res.status(400).json({ error: "Bad request", err })
+        }
+    })
+
+    router.post('/impression/clicked', async (req: Request, res: Response) => {
+        try {
+            const _updated = await impressionService.click(Number(req.body.impression_id))
+            if (_updated) {
+                res.status(201).json({ ok: 1 })
+            }
+
+        } catch (err) {
+            res.status(400).json({ ok: 0, error: `Error while update the link` });
         }
     })
 

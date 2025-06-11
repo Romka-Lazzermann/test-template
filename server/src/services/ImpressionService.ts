@@ -35,4 +35,23 @@ export class ImpressionService {
         console.log("impression", impression.id);
         return impression;
     }
+
+    async click(impression_id : number) {
+        const impression = await this.ImpressionRepo.findOne({
+            where: {
+                id: impression_id
+            }
+        })
+        if(!impression){
+            return null
+        }
+        if(impression.status === 'clicked'){
+            return impression;
+        }
+        impression.status = 'clicked'
+        await this.ImpressionRepo.save(impression)
+        return impression
+    }
+
+
 }

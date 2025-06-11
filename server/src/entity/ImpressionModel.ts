@@ -35,8 +35,8 @@ export class Impressions {
     @Column({ type: 'int', default: 0 })
     time!: number;
 
-    @Column({ type: 'int', default: 0 })
-    click!: number;
+    @Column({ type: 'enum', enum: ['created', 'clicked', 'sent'], default: 'created' })
+    status!: 'created' | 'clicked' | 'sent';
 
     @Column({ type: 'int', default: 0 })
     clicks!: number;
