@@ -280,8 +280,8 @@ export class LinksService {
 
                 _l.lang = cut_parts['lang'] || null
                 _l.keywords_white = cut_parts['keywords'] || ''
-                _l.description = cut_parts['description'] || ''
-                _l.description_white = cut_parts['description'] || ''
+                _l.description = cut_parts['description_start_text'] || ''
+                _l.description_white = cut_parts['description_start_text'] || ''
                 _l.sub_description = cut_parts['sub_description'] || ''
                 _l.title_white = cut_parts['title'] || ''
                 _l.status = 1;
@@ -309,8 +309,8 @@ export class LinksService {
             if (_l) {
                 cut_parts['keywords'] = cut_parts['keywords'].replace(/\\/g, "")
                 _l.title = cut_parts['title'] || ''
-                _l.description = cut_parts['description'] || ''
-                _l.sub_description = cut_parts['description'] || ''
+                _l.description = cut_parts['description_start_text'] || ''
+                _l.sub_description = cut_parts['sub_description'] || ''
                 _l.keywords = cut_parts['keywords'] || ''
                 _l.status = 1
 
