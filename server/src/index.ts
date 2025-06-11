@@ -12,6 +12,9 @@ import { createLinkRoutes } from './routes/links'
 import { createPublicBlogRoutes } from './routes/public_blog'
 import { createPublicCategoryRoutes } from './routes/public_category'
 import { createGoogleRoutes } from './routes/public_google'
+import {post_back_job} from './jobs/send_postback_job'
+import {free_combinations_job} from './jobs/free_combinations_job'
+
 
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
@@ -49,6 +52,8 @@ Promise.all([AppDataSource.initialize(), UserDbDataSource.initialize()]).then(()
   app.listen(PORT, () => {
     console.log('Server is running on port ', PORT)
   })
+  post_back_job.start()
+  free_combinations_job.start()
 }).catch((err) => {
   console.error('Error during Data Source initialization:', err)
 })
