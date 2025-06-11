@@ -41,7 +41,7 @@ export class GoogleService {
                 await fs.writeFile(cacheFile, JSON.stringify(data));
             }
 
-            return data.items;
+            return data;
         } catch (error) {
             console.error('Search error:', error);
             return { error: 'Search failed' };
