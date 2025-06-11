@@ -5,7 +5,6 @@ import LinkSnippetCard from "../link-snippet-card"
 import { postData } from '@/lib/api'
 export default function QueryResultsBlock(props: any) {
     const { impressionID, items, query } = props;
-    console.log("JSON.stringify({ impression_id: impressionID })", impressionID, JSON.stringify({ impression_id: impressionID }))
     const clickImpression = async () => {
         if (impressionID) {
             const res = await postData(`${process.env.NEXT_PUBLIC_SITE_DOMAIN}/api/impression/clicked`, { impression_id: impressionID })
