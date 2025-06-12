@@ -137,6 +137,9 @@ export const createLinkRoutes = () => {
     })
     router.get('/link/:link_name', async (req: Request, res: Response) => {
         try {
+            const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+            const ua = req.headers['user-agent'];
+
             const lang: any = req.query?.lang || ''
             const campaignid: any = req.query?.campaignid || '-'
             const fbclid: any = req.query?.fbclid || ''
@@ -154,7 +157,7 @@ export const createLinkRoutes = () => {
             const impressionService = container.resolve(ImpressionService);
             const combinationService = container.resolve(CombinationService);
 
-            const impression = await impressionService.create(link.data?.id || 0, campaignid, fbclid, ttclid)
+            const impression = await impressionService.create(link.data?.id || 0, campaignid, fbclid, ttclid, {ip, ua} )
             const combination = await combinationService.findByID(impression.combination_id);
             if (link?.translate) {
                 translateLinkContent(link?.payload, link.id)

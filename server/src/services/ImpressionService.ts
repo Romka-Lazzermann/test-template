@@ -12,7 +12,7 @@ export class ImpressionService {
         this.ImpressionRepo = datasource.getRepository(Impressions);
     }
     
-    async create(link_id: number, sub_id: string, fbclid = '', ttclid = ''){
+    async create(link_id: number, sub_id: string, fbclid = '', ttclid = '', user_agent_data: any){
         const combinationService = container.resolve(CombinationService);
         let combination : Partial<Combinations | null> =  {}
         combination = await combinationService.findCombinationByLinkSubID(link_id, sub_id)
@@ -20,6 +20,9 @@ export class ImpressionService {
             combination = await combinationService.linkCombination(link_id, sub_id)
         }
         
+        const {ip, ua} = user_agent_data;
+        const _ip = Array.isArray(ip) ? ip[0] : ip;
+
         const impression = await this.ImpressionRepo.create({})
         impression.combination_id = combination?.id || 0
         impression.channel_id = combination?.channel_id || 0
@@ -32,6 +35,8 @@ export class ImpressionService {
         impression.fbclid = fbclid || ''
         impression.ttclid = ttclid || ''
         impression.time = Date.now() / 1000
+        impression.ip = _ip
+        impression.ua = ua
         await this.ImpressionRepo.save(impression)
         console.log("impression", impression.id);
         return impression;
