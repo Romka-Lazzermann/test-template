@@ -90,8 +90,8 @@ export class CombinationService {
         const channelService = container.resolve(ChannelService)
         const styleService = container.resolve(StyleService)
 
-        const channelIds = await channelService.selectAllId();
-        const styleIds = await styleService.selectAllId();
+        const channelIds = await channelService.findAll();
+        const styleIds = await styleService.findAll();
         const existedCombos = await this.CombinationRepo
             .createQueryBuilder('c')
             .select(['c.style_id', 'c.channel_id'])
@@ -106,7 +106,14 @@ export class CombinationService {
         for (const channel of channelIds) {
             for (const style of styleIds) {
                 if (!existedSet.has(`${style.style_key}_${channel.id}`)) {
-                    insertRows.push({ style_id: style.style_key, channel_id: channel.id });
+                    insertRows.push({ 
+                        style_id: style.style_key, 
+                        channel_id: channel.id, 
+                        channel_key: channel.channel_key,
+                        channel_value: channel.channel_value,
+                        keyword_key: '78701918',
+                        keyword_text: '-'
+                    });
                 }
             }
         }
@@ -121,5 +128,31 @@ export class CombinationService {
                 .execute();
         }
         return []
+    }
+
+    async getUsedCombinations(){
+        const json = Object.assign({});
+
+        const used_combs = await this.CombinationRepo.find({
+            where : {
+                status: 'used'
+            }
+        })
+
+        if(used_combs?.length){
+            used_combs?.forEach((comb: Combinations, i: number) => {
+                json[`${comb.channel_value}-${comb.style_id}`] = {
+                    "channel_value": comb.channel_value,
+                    "style_id": comb.style_id,
+                    "offer": comb.channel_offer,
+                    "subid": comb.subid,
+                    "keyword_text": comb.keyword_text,
+                    "keyword_key": comb.keyword_key,
+                    "campaign_global_id": comb.campaign_global_id,
+                    "adw_id": comb.adw_id
+                }
+            })
+        }
+        return json;
     }
 }

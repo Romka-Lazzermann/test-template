@@ -31,6 +31,7 @@ export class ImpressionService {
         
         impression.fbclid = fbclid || ''
         impression.ttclid = ttclid || ''
+        impression.time = Date.now() / 1000
         await this.ImpressionRepo.save(impression)
         console.log("impression", impression.id);
         return impression;

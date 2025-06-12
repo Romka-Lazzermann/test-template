@@ -63,6 +63,7 @@ export const createLinkRoutes = () => {
     const router = Router();
     const linkService = container.resolve(LinksService)
     const impressionService = container.resolve(ImpressionService)
+    const combinationService = container.resolve(CombinationService)
 
     router.post('/link_create', upload.single('image'), async (req: Request, res: Response) => {
         try {
@@ -177,7 +178,16 @@ export const createLinkRoutes = () => {
             }
 
         } catch (err) {
-            res.status(400).json({ ok: 0, error: `Error while update the link` });
+            res.status(400).json({ ok: 0, error: `Error while the click` });
+        }
+    })
+
+    router.get('/channel_api', async (req: Request, res: Response) => {
+        try {
+            const data = await combinationService.getUsedCombinations()
+            res.status(201).json({ ok: 1, data: { ...data } })
+        } catch (err) {
+            res.status(400).json({ ok: 0, error: `Error while get channel api` });
         }
     })
 
