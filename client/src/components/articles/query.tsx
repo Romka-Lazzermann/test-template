@@ -7,7 +7,7 @@ export default function QueryResultsBlock(props: any) {
     const { impressionID, items, query } = props;
     const clickImpression = async () => {
         if (impressionID) {
-            const res = await postData(`${process.env.NEXT_PUBLIC_SITE_DOMAIN}/api/impression/clicked`, { impression_id: impressionID })
+            const res = await postData(`${process.env.NEXT_PUBLIC_API_URL}/api/impression/clicked`, { impression_id: impressionID })
         } else {
             console.log("no impression")
         }

@@ -2,15 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { serialize } from 'cookie'
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
-  const { pathname, searchParams } = url;
-
+  const { pathname, search, searchParams } = url;
+  const path = pathname.replace(/^\/proxy/, '/api') || '/';
   const setCookieKey = searchParams.get('setCookie'); // имя куки
   const cookieField = searchParams.get('cookieField'); // путь в JSON
-  const targetUrl = `${process.env.SERVER_URL}${pathname}?${searchParams.toString()}`;
-  console.log("targetUrl", targetUrl)
+  const targetUrl = `${process.env.SERVER_URL}${path}?${searchParams.toString()}`;
+
   const token = request.cookies.get('jwt')?.value;
   const headers = new Headers(request.headers);
+  headers.delete('host');
+  headers.delete('connection');
+
   if (token) headers.set('Authorization', `Bearer ${token}`);
+  console.log("GET proxy", targetUrl)
 
   const response = await fetch(targetUrl, { method: 'GET', headers });
 
@@ -56,11 +60,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   const { pathname, search } = new URL(request.url);
-  console.log("POST console", pathname)
-  // const targetPath = pathname.replace(/^\/api/, '');
-
-  const targetUrl = `${process.env.SERVER_URL}${pathname}${search}`;
+//   console.log("POST console", pathname)
+  const path = pathname.replace(/^\/proxy/, '/api') || '/';
+  const targetUrl = `${process.env.SERVER_URL}${path}${search}`;
   const headers = new Headers(request.headers);
+  headers.delete('host');
+  headers.delete('connection');
 
   let body: any = null;
   let _set_headers = true;

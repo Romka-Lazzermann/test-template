@@ -1,5 +1,5 @@
 export async function fetchBlogs(blogCallback: any) {
-    const res = await fetch('/api/blogs', {
+    const res = await fetch('/proxy/blogs', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -15,7 +15,7 @@ export async function fetchBlogs(blogCallback: any) {
 }
 
 export async function createBlog(formData: any, blogCallback: any) {
-    const res = await fetch('/api/blogs/', {
+    const res = await fetch('/proxy/blogs/', {
         method: 'POST',
         body: formData
     });
@@ -42,7 +42,7 @@ export async function updateBlog(formData: any, blogCallback: any){
       formData.delete(`keywords[${i}]`);
     }
     formData.append("keywords", JSON.stringify(keywords))
-    const res = await fetch(`/api/blogs/${blog_id}`, {
+    const res = await fetch(`/proxy/blogs/${blog_id}`, {
         method: 'POST',
         body: formData
     });

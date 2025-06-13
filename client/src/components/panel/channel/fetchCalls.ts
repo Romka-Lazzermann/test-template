@@ -1,5 +1,5 @@
 export async function fetchChannels(successCallback: any) {
-    const res = await fetch('/api/channels', {
+    const res = await fetch('/proxy/channels', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -20,7 +20,7 @@ export async function createChannel(formData: any, successCallback: any) {
     formData.forEach((v: any, k: any) => {
         json[k] = v;
     })
-    const res = await fetch('/api/channels/', {
+    const res = await fetch('/proxy/channels/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -45,7 +45,7 @@ export async function updateChannel(formData: any, successCallback: any) {
     formData.forEach((v: any, k: any) => {
         json[k] = v;
     })
-    const res = await fetch(`/api/channels/${channel_id}`, {
+    const res = await fetch(`/proxy/channels/${channel_id}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

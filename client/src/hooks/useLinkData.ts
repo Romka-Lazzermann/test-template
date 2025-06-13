@@ -12,8 +12,8 @@ export function useLinkData(slug: string, lang: string, searchParams: Record<str
     if (!slug || !lang) return
 
     const query = new URLSearchParams({ lang, ...searchParams }).toString()
-    const url = `/api/link/${slug}?${query}&setCookie=impression_id&cookieField=impression_id`
-
+    const url = `/proxy/link/${slug}?${query}&setCookie=impression_id&cookieField=impression_id`
+    console.log("link url", url)
     setIsLoading(true)
     setError(null)
 
@@ -24,12 +24,13 @@ export function useLinkData(slug: string, lang: string, searchParams: Record<str
       },
     })
       .then(res => {
+        console.log("fetch article")
         if (!res.ok) throw new Error(`Error: ${res.status}`)
         return res.json()
       })
       .then(json => {
         try {
-          json.data.keywords = json.data.keywords.replace(/\\/g, "");
+          // json.data.keywords = json.data.keywords.replace(/\\/g, "");
           json.data.keywords = JSON.parse(json.data.keywords)
           json.data.title = DOMPurify.sanitize(json.data.title)
           json.data.description = DOMPurify.sanitize(json.data.description)

@@ -1,31 +1,30 @@
 'use client';
 
 import { useState } from 'react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function LoginForm() {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
-
+  const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            login,
-            password
-        })
+    const res = await fetch('/proxy/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        login,
+        password
+      })
     });
-    if(res.ok){
-        const data = await res.json();
-        console.log('Login success:', data);
-        redirect('/panel')
-    }else {
-        const data = await res.json();
-        console.log("something wrong", data)
+    if (res.ok) {
+      const data = await res.json();
+      router.push("/panel")
+    } else {
+      const data = await res.json();
+      console.error("something wrong", data)
     }
   };
 

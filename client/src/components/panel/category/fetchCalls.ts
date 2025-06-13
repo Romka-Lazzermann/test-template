@@ -1,5 +1,5 @@
 export async function fetchCategories(successCallback: any) {
-    const res = await fetch('/api/categories', {
+    const res = await fetch('/proxy/categories', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -20,7 +20,7 @@ export async function createCategory(formData: any, successCallback: any) {
     formData.forEach((v: any, k: any) => {
         json[k] = v;
     })
-    const res = await fetch('/api/categories/', {
+    const res = await fetch('/proxy/categories/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -45,7 +45,7 @@ export async function updateCategory(formData: any, successCallback: any) {
     formData.forEach((v: any, k: any) => {
         json[k] = v;
     })
-    const res = await fetch(`/api/categories/${category_id}`, {
+    const res = await fetch(`/proxy/categories/${category_id}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

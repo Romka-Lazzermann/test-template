@@ -1,7 +1,7 @@
 
 import Link from 'next/link';
 import Logo from './logo';
-import SearchBar from './search-bar';
+import SearchBar from './search-bar-wrapper';
 import { Button } from './ui/button';
 import { Menu, Search } from 'lucide-react'; 
 import {

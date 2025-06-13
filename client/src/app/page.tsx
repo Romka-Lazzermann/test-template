@@ -12,6 +12,7 @@ import { Article } from '@/types';
 export default async function HomePage() {
   const popular = await fetchData(`${process.env.SERVER_URL}/api/public/blogs/popular`)
   const latest = await fetchData(`${process.env.SERVER_URL}/api/public/blogs/latest`)
+  console.log("popular", popular)
   const mostPopular : Article = popular[0];
   popular.splice(0,1);
 

@@ -1,5 +1,5 @@
 export async function fetchStyles(successCallback: any) {
-    const res = await fetch('/api/styles', {
+    const res = await fetch('/proxy/styles', {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json'
@@ -22,7 +22,7 @@ export async function createStyle(formData: any, successCallback: any) {
         json[k] = v;
     })
 
-    const res = await fetch('/api/styles/', {
+    const res = await fetch('/proxy/styles/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -47,7 +47,7 @@ export async function updateStyle(formData: any, successCallback: any) {
         json[k] = v;
     })
 
-    const res = await fetch(`/api/styles/${style_id}`, {
+    const res = await fetch(`/proxy/styles/${style_id}`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
