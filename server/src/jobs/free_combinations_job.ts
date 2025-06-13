@@ -77,6 +77,6 @@ export const free_combinations_job = new CronJob(
         }
     },
     null,
-    true,
+    false,
     'UTC'
 );

@@ -12,8 +12,9 @@ import { createLinkRoutes } from './routes/links'
 import { createPublicBlogRoutes } from './routes/public_blog'
 import { createPublicCategoryRoutes } from './routes/public_category'
 import { createGoogleRoutes } from './routes/public_google'
-import {post_back_job} from './jobs/send_postback_job'
-import {free_combinations_job} from './jobs/free_combinations_job'
+import { post_back_job } from './jobs/send_postback_job'
+import { free_combinations_job } from './jobs/free_combinations_job'
+import cors from 'cors';
 
 
 import bodyParser from 'body-parser'
@@ -29,11 +30,18 @@ const PORT = process.env.PORT || 3000;
 Promise.all([AppDataSource.initialize(), UserDbDataSource.initialize()]).then(() => {
   container.registerInstance('AppDataSource', AppDataSource);
   container.registerInstance('UserDbDataSource', UserDbDataSource);
+  console.log("pm_id", process.env.pm_id, process.env.RUN_CRON);
+  // Test
+  app.use(cors({
+    origin: 'https://tripointhome.com',
+    credentials: true,
+  }));
 
   console.log('Data Source has been initialized!')
-  app.use('/assets', express.static('assets'))
+  // app
   app.use(bodyParser.json())
   app.use('/api', express.Router()
+    .use('/assets', express.static('assets'))
     .use('/public', express.Router()
       .use('/blogs', createPublicBlogRoutes())
       .use('/categories', createPublicCategoryRoutes())
@@ -52,8 +60,12 @@ Promise.all([AppDataSource.initialize(), UserDbDataSource.initialize()]).then(()
   app.listen(PORT, () => {
     console.log('Server is running on port ', PORT)
   })
-  post_back_job.start()
-  free_combinations_job.start()
+  if (process.env.RUN_CRON === 'true') {
+    console.log(`only ${process.env.pm_id} starts a cron`)
+    post_back_job.start()
+    free_combinations_job.start()
+
+  }
 }).catch((err) => {
   console.error('Error during Data Source initialization:', err)
 })

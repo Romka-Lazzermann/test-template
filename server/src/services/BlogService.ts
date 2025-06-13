@@ -1,6 +1,6 @@
 import { DataSource, Repository } from "typeorm";
 import { Blog } from '../entity/BlogModel'
-import Gemini from "../services/AIPromtService"
+// import Gemini from "../services/AIPromtService"
 import { injectable, inject } from 'tsyringe';
 import path from "path";
 import fs from 'fs';
@@ -16,17 +16,16 @@ export class BlogService {
 
     async create(blogData: Partial<Blog>): Promise<Blog | null> {
 
-        const blog_prompt = await Gemini.generateBlogContent(blogData.title || null)
-
-        const _blog_text_parts = cutThePrompt(false, blog_prompt.text);
         const name = slugify(blogData?.title || '', {
             locale: 'en',
             replacement: '_',
             lower: true,
             strict: true
         })
+
         blogData['name'] = name;
-        const blog = this.blogRepo.create({ ...blogData, ..._blog_text_parts });
+        blogData['status'] = 0;
+        const blog = this.blogRepo.create({ ...blogData });
         blog.time_create = Math.floor(Date.now() / 1000);
         const _blog = await this.blogRepo.save(blog);
         const populated_blog = await this.blogRepo.findOne({
@@ -34,6 +33,21 @@ export class BlogService {
             where: { id: _blog.id }
         })
         return populated_blog || null
+    }
+
+    async addGenerated(blogId : number, content: any){
+        const blog = await this.blogRepo.findOne({ where: {id: blogId}  });
+        const _blog_text_parts = cutThePrompt(false, false, content.text);
+        if(!blog){
+            return null
+        }
+        blog.status = 1
+        const data_save = {...blog, ..._blog_text_parts}
+        data_save['description'] = _blog_text_parts['description_start_text']
+        const title = data_save['title'].replace(/<[^>]+>/g, '');
+        data_save['title'] = title
+        const saved = await this.blogRepo.save({...data_save})
+        return saved
     }
 
     async findAll(): Promise<Blog[]> {
@@ -110,6 +124,7 @@ export class BlogService {
 
 
     async update(id: number, updateData: Partial<Blog>): Promise<Blog | null> {
+        console.log("UpdatedData",updateData )
         const blog = await this.blogRepo.findOneBy({ id });
         if (!blog) return null;
         if (updateData?.img) {
@@ -119,6 +134,8 @@ export class BlogService {
                     console.error("Error while deleting file", unlinkErr)
                 }
             })
+        }else {
+            delete updateData['img']
         }
         Object.assign(blog, updateData);
 

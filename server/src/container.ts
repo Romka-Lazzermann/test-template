@@ -9,7 +9,7 @@ import { LinksService } from './services/LinksService'
 import { AIPromtService } from './services/AIPromtService'
 import { ImpressionService } from './services/ImpressionService'
 import { GoogleService } from './services/GoogleService'
-
+import {MODEL_TOKEN} from './helpers/validate'
 
 container.register(BlogService, { useClass: BlogService });
 container.register(UserService, { useClass: UserService });
@@ -18,6 +18,7 @@ container.register(ChannelService, { useClass: ChannelService });
 container.register(StyleService, { useClass: StyleService });
 container.register(CombinationService, { useClass: CombinationService })
 container.register(LinksService, { useClass: LinksService })
+container.register(MODEL_TOKEN, { useValue: 'gemini-2.0-flash' });
 container.register(AIPromtService, { useClass: AIPromtService })
 container.register(ImpressionService, { useClass: ImpressionService })
 container.register(GoogleService, { useClass: GoogleService })

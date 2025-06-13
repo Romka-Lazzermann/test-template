@@ -1,12 +1,12 @@
 import axios from "axios";
-import { injectable } from 'tsyringe'
+import { inject, injectable } from 'tsyringe'
 import { getGenerateBlogContentPrompt, getGenerateLinksContentPrompt, getTraslateTheBlog } from "../helpers/prompts";
-
+import { MODEL_TOKEN } from "../helpers/validate";
 @injectable()
 export class AIPromtService {
     private model: string;
     private api_key: string;
-    constructor(model: string = 'gemini-2.0-flash') {
+    constructor(@inject(MODEL_TOKEN) model: string) {
         this.model = model;
         this.api_key = process.env?.GEMINI_API_KEY || "";
     }
@@ -111,6 +111,3 @@ export class AIPromtService {
 
     }
 }
-
-const Gemini = new AIPromtService();
-export default Gemini;

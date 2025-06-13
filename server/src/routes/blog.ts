@@ -7,11 +7,36 @@ import fs from 'fs';
 import path from 'path';
 import { container } from 'tsyringe'
 import {format_seconds_timestamp} from '../helpers/format'
+import PQueue from 'p-queue';
+import retry from 'async-retry';
+import {AIPromtService} from '../services/AIPromtService';
+
 
 const router = Router();
 
 export const createBlogRoutes = () => {
+  const promptQueue = new PQueue({ concurrency: 10 });
   const blogService = container.resolve(BlogService);
+  const gemini = container.resolve(AIPromtService);
+
+  const generateBlogContent = (blogId: number, payload: any) => {
+          promptQueue.add(() =>
+              retry(
+                  async () => {
+                      const content = await gemini.generateBlogContent(payload);
+                      const result = await blogService.addGenerated(blogId, content);
+                  },
+                  {
+                      retries: 3,
+                      minTimeout: 1000,
+                      onRetry: (err: any, attempt) => {
+                          console.warn(`Retry #${attempt} for generateBlogContent:`, err.message);
+                      },
+                  }
+              )
+          );
+      };
+
   
   router.post('/', upload.single('img'), async (req : MulterRequest | Request, res ) => {
     try {
@@ -27,9 +52,10 @@ export const createBlogRoutes = () => {
         create_date: format_seconds_timestamp(blog.time_create, 'YYYY-MM-DD HH:mm:ss'),
         keywords: JSON.parse(blog.keywords),
         sub_description: blog.sub_description,
-        category_id: blog.category_id.id
+        category_id: blog.category_id.id,
+        status: blog.status 
       }
-    
+      generateBlogContent(blog.id, blog.title)
       res.status(201).json(prepared_data);
     } catch (err) {
       if(req?.file){
@@ -56,7 +82,9 @@ export const createBlogRoutes = () => {
         create_date: format_seconds_timestamp(blogs.time_create, 'YYYY-MM-DD HH:mm:ss'),
         keywords: JSON.parse(blogs.keywords),
         sub_description: blogs.sub_description,
-        category_id: blogs.category_id.id
+        category_id: blogs.category_id.id,
+        status: blogs.status
+
       }
     })
     res.json(prepared_data);

@@ -5,7 +5,7 @@ import slugify from "slugify";
 import path from "path";
 import fs from 'fs';
 import { LinksMultilang } from "../entity/LinksMultilang";
-import {isStringifiedArray, cutThePrompt} from "../helpers/format"
+import {isStringifiedArray, cutThePrompt, normalizeTags} from "../helpers/format"
 @injectable()
 export class LinksService {
     protected LinksRepo: Repository<Links>;
@@ -151,6 +151,8 @@ export class LinksService {
                         console.error("Error while deleting file", unlinkErr)
                     }
                 })
+            }else {
+                delete data['img']
             }
             if (data?.title) {
                 _l.name = slugify(data?.title || '', {
@@ -185,8 +187,10 @@ export class LinksService {
             if (!_l.multilang) {
                 return {
                     ok: 1, lang: _l?.lang, data: {
+                        id: _l.id,
                         title: _l?.title_white,
                         description: _l?.description_white,
+                        sub_description: _l.sub_description,
                         lang: _l?.lang,
                         img: `${process.env.SERVER_URL}/${_l.img}`,
                         keywords: _l?.keywords
@@ -208,6 +212,7 @@ export class LinksService {
                             id: _l.id,
                             title: _multi_l?.status ? _multi_l?.title : _l.title_white,
                             description: _multi_l?.status ? _multi_l?.description : _l.description_white,
+                            sub_description: _multi_l?.status ? _multi_l?.sub_description : _l.sub_description,
                             lang: _multi_l?.status ? _multi_l?.lang : _l.lang,
                             img: `${process.env.SERVER_URL}/${_l.img}`,
                             keywords: _multi_l.keywords ? _multi_l?.keywords : _l.keywords,
@@ -228,6 +233,8 @@ export class LinksService {
                             id: _l?.id,
                             title: _l?.title_white,
                             description: _l?.description_white,
+                            sub_description: _l.sub_description,
+
                             language: _l?.lang,
                             img: `${process.env.SERVER_URL}/${_l.img}`,
                             keywords: _l.keywords
@@ -251,7 +258,8 @@ export class LinksService {
                     title: _l?.title_white,
                     description: _l?.description_white,
                     lang: _l?.lang,
-                    keywords: _l?.keywords
+                    keywords: _l?.keywords,
+                    img: `${process.env.SERVER_URL}/${_l.img}`,
                 }
             }
         }
@@ -270,7 +278,7 @@ export class LinksService {
     }
 
     async addGeneratedContent(link_id: number, prompt_payload: Partial<any>) {
-        const cut_parts = cutThePrompt(true, prompt_payload?.text || '')
+        const cut_parts = cutThePrompt(true, false, prompt_payload?.text || '')
         // console.log("addGeneratedContent", cut_parts)
         try {
             const _l = await this.LinksRepo.findOneBy({
@@ -299,8 +307,9 @@ export class LinksService {
     }
 
     async addTraslatedLink(id: number, prompt_payload: any, lang: string) {
-        const cut_parts = cutThePrompt(true, prompt_payload?.text || '')
-        // console.log("addTraslatedLink", cut_parts)
+        console.log("what a prompt", prompt_payload?.text)
+        const cut_parts = cutThePrompt(true, true, prompt_payload?.text || '')
+        console.log("addTraslatedLink", cut_parts)
         try {
             const _l = await this.LinksMultilangRepo.findOneBy({
                 link_id: id,
@@ -309,9 +318,10 @@ export class LinksService {
             if (_l) {
                 cut_parts['keywords'] = cut_parts['keywords'].replace(/\\/g, "")
                 _l.title = cut_parts['title'] || ''
-                _l.description = cut_parts['description_start_text'] || ''
+                _l.description = cut_parts['description'] || ''
                 _l.sub_description = cut_parts['sub_description'] || ''
-                _l.keywords = cut_parts['keywords'] || ''
+                _l.keywords =  isStringifiedArray(cut_parts['keywords']) ? cut_parts['keywords'] : normalizeTags(cut_parts['keywords'])
+                _l.keywords = JSON.stringify(_l.keywords)
                 _l.status = 1
 
                 const saved = await this.LinksMultilangRepo.save(_l)

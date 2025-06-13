@@ -25,3 +25,5 @@ export function validateDynamicLinksRequest(body: any): { type: string, success:
         missing,
     };
 }
+
+export const MODEL_TOKEN = "MODEL_TOKEN";

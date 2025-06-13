@@ -13,13 +13,16 @@ export class ImpressionService {
     }
     
     async create(link_id: number, sub_id: string, fbclid = '', ttclid = '', user_agent_data: any){
+        console.log("fbclid", fbclid, "ttclid", ttclid)
         const combinationService = container.resolve(CombinationService);
         let combination : Partial<Combinations | null> =  {}
         combination = await combinationService.findCombinationByLinkSubID(link_id, sub_id)
         if(!combination){
             combination = await combinationService.linkCombination(link_id, sub_id)
+            console.log("link combination")
+
         }
-        
+        console.log("combination", combination)
         const {ip, ua} = user_agent_data;
         const _ip = Array.isArray(ip) ? ip[0] : ip;
 

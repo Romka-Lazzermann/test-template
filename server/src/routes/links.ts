@@ -15,12 +15,12 @@ import { isStringifiedArray } from "../helpers/format";
 
 export const createLinkRoutes = () => {
     const promptQueue = new PQueue({ concurrency: 10 });
+    const gemini = container.resolve(AIPromtService);
 
     const generateLinkContent = (linkId: number, payload: any) => {
         promptQueue.add(() =>
             retry(
                 async () => {
-                    const gemini = container.resolve(AIPromtService);
                     const linkService = container.resolve(LinksService);
                     const content = await gemini.generateLinkContent(payload);
                     await linkService.addGeneratedContent(linkId, content);
@@ -153,7 +153,7 @@ export const createLinkRoutes = () => {
                 id,
                 name
             }, lang)
-
+            console.log("req.query", JSON.stringify(req.query))
             const impressionService = container.resolve(ImpressionService);
             const combinationService = container.resolve(CombinationService);
 

@@ -58,6 +58,7 @@ export class CombinationService {
             if(!combination){
                 return null
             }
+            console.log("link_id", link_id)
             const {link} = await linkService.findByID(link_id)
             if(!link){
                 return {ok: 0, error: "Link does not exists"}
@@ -77,6 +78,8 @@ export class CombinationService {
             combination.campaign_global_id = link.campaign_global_id || ''
             combination.adw_id = link?.adw_id
 
+            combination.domain = process.env.DOMAIN || ''
+            console.log("linked combination", combination)
             await this.CombinationRepo.save(combination);
 
             return combination;
